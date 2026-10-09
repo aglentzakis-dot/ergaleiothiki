@@ -1,0 +1,27 @@
+{
+  "name": "Εργαλειοθήκη — εργαλεία και υπολογισμοί για μάστορες",
+  "short_name": "Εργαλειοθήκη",
+  "description": "Αλφάδι, χάρακας, μετροταινία, πυξίδα, ηχόμετρο, φακός και υπολογισμοί υλικών για πλακάκια, μπογιά, μπετόν, γυψοσανίδα, ηλεκτρολογικά.",
+  "lang": "el",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EDF1F2",
+  "theme_color": "#17324D",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "id": "/ergaleiothiki/index.html",
+  "categories": ["utilities", "productivity", "tools"],
+  "launch_handler": {"client_mode": ["navigate-existing", "auto"]},
+  "shortcuts": [
+    {"name": "Αλφάδι", "short_name": "Αλφάδι", "url": "./index.html?t=alfadi", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]},
+    {"name": "Μετροταινία", "short_name": "Μέτρο", "url": "./index.html?t=ar", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]},
+    {"name": "Φακός", "short_name": "Φακός", "url": "./index.html?t=fakos", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]},
+    {"name": "Λίστα υλικών", "short_name": "Λίστα", "url": "./index.html?t=lista", "icons": [{"src": "icon-192.png", "sizes": "192x192", "type": "image/png"}]}
+  ]
+}

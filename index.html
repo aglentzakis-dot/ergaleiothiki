@@ -1,0 +1,634 @@
+<!doctype html>
+<!--
+  Εργαλειοθήκη
+  © 2026 Ανδρέας Μ. Γλεντζάκης (Andreas M. Glentzakis). Με την επιφύλαξη παντός δικαιώματος. All rights reserved.
+  Απαγορεύεται η αντιγραφή, τροποποίηση και διάθεση, εν όλω ή εν μέρει, χωρίς προηγούμενη γραπτή άδεια του κατόχου.
+  Copying, modification and distribution, in whole or in part, without the owner's prior written permission are prohibited.
+-->
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="app-version" content="1.0.0">
+<meta name="theme-color" content="#17324D">
+<meta name="description" content="Εργαλειοθήκη για μάστορες: αλφάδι, χάρακας, μετροταινία, πυξίδα, ηχόμετρο, φακός και υπολογισμοί υλικών.">
+<title>Εργαλειοθήκη</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--brand:#17324D;--onbrand:#fff;--accent:#F2B632;--accent2:#FDD117;--onaccent:#17324D;--paper:#EDF1F2;--card:#fff;--ink:#17324D;--muted:#5E7185;--line:#D6DEE3;--red:#C8412B;--green:#2E7D5B;--blue:#2468B5;--silver:#C9D0D7}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#0F1B27;--card:#172636;--ink:#E8EEF3;--muted:#9AABBC;--line:#2A3D50}}
+:root[data-theme=dark]{--paper:#0F1B27;--card:#172636;--ink:#E8EEF3;--muted:#9AABBC;--line:#2A3D50}
+*{box-sizing:border-box}[hidden]{display:none!important}.row>input{min-width:0}html,body{margin:0}
+body{font-family:system-ui,Segoe UI,Roboto,Noto Sans,Arial,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.4;-webkit-tap-highlight-color:transparent;padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+button{font:inherit;cursor:pointer;color:inherit}a{color:inherit}input,select,textarea{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:var(--onbrand);display:flex;align-items:center;gap:4px;padding:9px 6px 9px 12px;padding-top:calc(9px + env(safe-area-inset-top))}
+.mark{flex:none;width:38px;height:38px;margin-right:8px;border-radius:10px}
+.htitle{flex:1;min-width:0;line-height:1.1}.htitle h1{margin:0;font-size:19px;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.htitle small{display:block;font-size:12px;opacity:.78;margin-top:3px}
+.hbtn{flex:none;background:none;border:0;color:var(--onbrand);width:42px;height:42px;border-radius:10px;font-size:21px;display:flex;align-items:center;justify-content:center}.hbtn:active{background:#ffffff22}
+main{max-width:760px;margin:0 auto;padding:12px 12px 20px}
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:4px 12px;margin:2px 0 12px}
+.search input{flex:1;border:0;background:none;padding:9px 0;outline:none;font-size:16px}
+h2.cat{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:16px 4px 8px;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{display:flex;align-items:center;gap:10px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:11px 10px;min-height:66px;box-shadow:0 1px 2px #0000000d}
+.tile:active{transform:scale(.98)}
+.tile .ic{flex:none;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:23px;background:linear-gradient(160deg,#FDD117,#EF9F02)}
+.tile .ic.s{background:linear-gradient(160deg,#F4F6F8,#B9C2CB)}.tile .ic.n{background:linear-gradient(160deg,#2B4E73,#17324D)}
+.tile b{display:block;font-size:14.5px;line-height:1.15}.tile small{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.2}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 12px}
+.card h3{margin:0 0 8px;font-size:16px}
+.note{color:var(--muted);font-size:13px;margin:6px 0}
+.warn{background:#FFF4D6;color:#5B4300;border:1px solid #F2D27A;border-radius:12px;padding:10px 12px;font-size:13px;margin:8px 0}
+:root[data-theme=dark] .warn{background:#3A3010;color:#F7E2A6;border-color:#6B5A1E}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .warn{background:#3A3010;color:#F7E2A6;border-color:#6B5A1E}}
+.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:750;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.amber{background:var(--accent);color:var(--onaccent)}.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}.btn.red{background:var(--red)}
+.btn.small{padding:7px 11px;font-size:13.5px;border-radius:10px}.btn.wide{width:100%}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{flex:1}
+.toolhead{display:flex;align-items:center;gap:8px;margin:0 0 12px}.toolhead h2{flex:1;margin:0;font-size:20px}
+.back{border:0;background:var(--card);border:1px solid var(--line);width:42px;height:42px;border-radius:12px;font-size:20px}
+.help{border:0;background:var(--card);border:1px solid var(--line);width:42px;height:42px;border-radius:12px;font-weight:900;font-size:18px}
+.fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);font-weight:650}
+.fld.full{grid-column:1/-1}
+.fld .in{display:flex;align-items:center;background:var(--paper);border:1.5px solid var(--line);border-radius:11px;overflow:hidden}
+.fld input,.fld select{flex:1;min-width:0;border:0;background:none;padding:10px;font-size:16px;font-weight:700;outline:none}
+.fld .u{padding:0 10px;color:var(--muted);font-weight:700;font-size:13px}
+.res{margin-top:12px;border-top:1.5px dashed var(--line);padding-top:10px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 2px;border-bottom:1px solid var(--line)}.kv:last-child{border-bottom:0}
+.kv span{color:var(--muted)}.kv b{text-align:right}.kv.hl b{font-size:20px;color:var(--brand)}
+:root[data-theme=dark] .kv.hl b{color:var(--accent2)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .kv.hl b{color:var(--accent2)}}
+.big{font-size:44px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.mid{font-size:22px;font-weight:850;text-align:center;font-variant-numeric:tabular-nums}
+.seg{display:flex;background:var(--paper);border:1.5px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin:0 0 10px}
+.seg button{flex:1;border:0;background:none;border-radius:9px;padding:8px 6px;font-weight:750;font-size:13.5px;color:var(--muted)}
+.seg button.on{background:var(--brand);color:#fff}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav.bottom button{flex:1;border:0;background:none;padding:8px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11.5px;color:var(--muted);font-weight:700}
+nav.bottom button i{font-style:normal;font-size:21px}nav.bottom button.on{color:var(--brand)}
+:root[data-theme=dark] nav.bottom button.on{color:var(--accent2)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) nav.bottom button.on{color:var(--accent2)}}
+nav.bottom .cnt{background:var(--red);color:#fff;border-radius:9px;font-size:10px;padding:0 5px;margin-left:2px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#17324Dee;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:40;max-width:90vw;opacity:0;transition:opacity .25s;pointer-events:none}.toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:#0008;z-index:30;display:none;align-items:flex-end;justify-content:center}.modal.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:640px;max-height:90vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.sh-head{display:flex;align-items:center;padding:14px 16px 6px}.sh-head .t{flex:1;font-weight:850;font-size:17px}.sh-head .x{border:0;background:none;font-size:22px;width:40px;height:40px}
+.sh-body{overflow:auto;padding:4px 16px 18px}
+.list .it{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line)}.list .it:last-child{border-bottom:0}
+.list .it .tx{flex:1;min-width:0}.list .it .tx b{display:block}.list .it .tx small{color:var(--muted)}
+.xbtn{border:0;background:none;font-size:18px;width:36px;height:36px;border-radius:9px;color:var(--muted)}
+.updbar,.instbar{position:fixed;left:10px;right:10px;bottom:calc(72px + env(safe-area-inset-bottom));z-index:26;display:flex;gap:10px;align-items:center;background:var(--brand);color:#fff;border-radius:12px;padding:10px 12px;font-size:14px;box-shadow:0 6px 16px #0000004d}.updbar span,.instbar span{flex:1}
+/* εργαλεία με αισθητήρες */
+.cam{position:relative;width:100%;aspect-ratio:3/4;max-height:62vh;background:#000;border-radius:16px;overflow:hidden}
+.cam video,.cam canvas.ov{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cam .cross{position:absolute;left:50%;top:50%;width:64px;height:64px;transform:translate(-50%,-50%);pointer-events:none}
+.cam .hud{position:absolute;left:8px;right:8px;top:8px;display:flex;justify-content:space-between;gap:8px;color:#fff;font-weight:800;text-shadow:0 1px 3px #000}
+.cam .hud .pill{background:#0009;border-radius:10px;padding:6px 10px;font-size:14px}
+.lvl{position:relative;width:min(84vw,320px);aspect-ratio:1;margin:6px auto 10px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#E9F9C9,#B9E879 70%,#8CC44C);border:6px solid var(--silver);box-shadow:inset 0 4px 12px #0003}
+.lvl .ring{position:absolute;left:50%;top:50%;border:2px solid #2E5A1C66;border-radius:50%;transform:translate(-50%,-50%)}
+.lvl .bub{position:absolute;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#E8F5D0 60%,#C9E6A0);border:2px solid #fff;box-shadow:0 2px 6px #0004;left:50%;top:50%;transform:translate(-50%,-50%)}
+.bar{position:relative;height:70px;margin:10px 0;border-radius:35px;background:linear-gradient(#E9F9C9,#A9DD66);border:6px solid var(--silver);overflow:hidden}
+.bar .bub{position:absolute;top:50%;width:70px;height:40px;border-radius:20px;background:radial-gradient(circle at 40% 35%,#fff,#E5F4CF 60%,#C5E39B);transform:translate(-50%,-50%);left:50%;border:2px solid #fff}
+.bar .m{position:absolute;top:0;bottom:0;width:3px;background:#2E5A1C88}
+.level-ok{color:var(--green)!important}
+.rulerwrap{position:relative;height:60vh;border-radius:16px;overflow:hidden;background:var(--card);border:1px solid var(--line);touch-action:none}
+.rulerwrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.calcard{width:85.6mm;height:54mm;border:2px dashed var(--blue);border-radius:3mm;margin:10px auto;display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:800;text-align:center;font-size:13px;padding:8px}
+.meter{height:16px;border-radius:9px;background:var(--line);overflow:hidden}.meter i{display:block;height:100%;background:linear-gradient(90deg,#2E7D5B,#F2B632,#C8412B);border-radius:9px;transition:width .15s}
+canvas.graph{width:100%;height:150px;background:var(--paper);border-radius:12px;display:block}
+.compass{position:relative;width:min(80vw,300px);aspect-ratio:1;margin:8px auto}
+.compass svg{width:100%;height:100%}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 5px;text-align:left}.tbl th{color:var(--muted);font-size:12.5px}
+.chip{display:inline-block;background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:5px 11px;margin:3px 4px 3px 0;font-size:13px;font-weight:700}
+.efm-slot{margin:6px 0 12px}
+#arOverlay{position:fixed;inset:0;display:none;color:#fff;font-family:system-ui;z-index:50}
+#arOverlay .top{position:absolute;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));display:flex;gap:8px;align-items:flex-start}
+#arOverlay .read{flex:1;background:#000a;border-radius:12px;padding:8px 12px;font-size:15px;font-weight:700}
+#arOverlay .read big{font-size:26px;font-weight:900;display:block}
+#arOverlay .bot{position:absolute;left:0;right:0;bottom:calc(24px + env(safe-area-inset-bottom));display:flex;justify-content:center;gap:14px;align-items:center}
+#arOverlay button{border:0;border-radius:50%;width:56px;height:56px;font-size:22px;background:#ffffffdd;color:#17324D;font-weight:900}
+#arOverlay button.add{width:78px;height:78px;font-size:38px;background:#FDD117}
+.footer{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 4px}
+</style>
+</head>
+<body>
+<header>
+  <img class="mark" src="icon-192.png" alt="" aria-hidden="true">
+  <div class="htitle"><h1 id="appTitle">Εργαλειοθήκη</h1><small>GlenApps · για μάστορες</small></div>
+  <button class="hbtn" data-act="settings" aria-label="Ρυθμίσεις">⚙️</button>
+</header>
+<main id="main"></main>
+<nav class="bottom" id="nav">
+  <button data-nav="home" class="on"><i>🧰</i>Εργαλεία</button>
+  <button data-nav="lista"><i>🛒</i><span>Λίστα<span id="cntList"></span></span></button>
+  <button data-nav="saved"><i>📒</i>Μετρήσεις</button>
+  <button data-nav="settings"><i>⚙️</i>Ρυθμίσεις</button>
+</nav>
+<div class="modal" id="modal"><div class="sheet" role="dialog" aria-modal="true"><div class="sh-head"><span class="t" id="shTitle"></span><button class="x" id="shClose" aria-label="Κλείσιμο">✕</button></div><div class="sh-body" id="shBody"></div></div></div>
+<div class="toast" id="toast"></div>
+<div id="arOverlay"><div class="top"><div class="read" id="arRead"><big>—</big>Στόχευσε το πάτωμα ή τον τοίχο και κούνησε λίγο το κινητό.</div></div>
+<div class="bot"><button id="arUndo" aria-label="Αναίρεση">↶</button><button class="add" id="arAdd" aria-label="Σημείο">+</button><button id="arNew" aria-label="Νέα μέτρηση">⟲</button><button id="arClose" aria-label="Έξοδος">✕</button></div></div>
+<script src="antigrafa.js"></script>
+<script src="efarmoges-mas.js"></script>
+<script>
+/*
+  Εργαλειοθήκη
+  © 2026 Ανδρέας Μ. Γλεντζάκης (Andreas M. Glentzakis). Με την επιφύλαξη παντός δικαιώματος. All rights reserved.
+*/
+"use strict";
+const APP_VERSION="1.0.0",APP_BUILD="2026-10-09",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
+APP_URL="https://aglentzakis-dot.github.io/ergaleiothiki/",FS_DB="shared-backups",FS_STORE="handles",FS_KEY="ergaleiothiki-root",FS_SUB="Εργαλειοθήκη",BK_PREFIX="ergaleiothiki-antigrafo";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const T=(s,v)=>{if(v)for(const k in v)s=s.split("{"+k+"}").join(v[k]);return s};
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const nf=(x,d=2)=>{if(x==null||!isFinite(x))return"—";return Number(x).toLocaleString("el-GR",{maximumFractionDigits:d,minimumFractionDigits:0})};
+const pad=n=>String(n).padStart(2,"0");
+const today=()=>{const d=new Date;return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+const DEG=Math.PI/180;
+/* ---------- αποθήκευση ---------- */
+let S=load();
+function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch{}
+ s.settings=Object.assign({beep:true,vib:true,pxPerMm:0,levelZero:{x:0,y:0,r:0},dbOffset:0,phoneH:150,theme:"auto",gdrive:{},bkWarned:0},s.settings||{});
+ s.calc=s.calc||{};s.saved=s.saved||[];s.list=s.list||[];s.meta=Object.assign({changes:0},s.meta||{});return s}
+function write(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch{toast("Δεν αποθηκεύτηκε — ο χώρος της συσκευής γέμισε.")}}
+function changed(){S.meta.changes=(S.meta.changes||0)+1;S.meta.lastChange=Date.now();write();bkOnChange()}
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2600)}
+function applyTheme(){const t=S.settings.theme;t==="auto"?document.documentElement.removeAttribute("data-theme"):document.documentElement.setAttribute("data-theme",t)}
+applyTheme();
+/* ---------- φύλλο ---------- */
+function openSheet(title,html,onOpen){$("#shTitle").textContent=title;$("#shBody").innerHTML=html;$("#modal").classList.add("open");onOpen&&onOpen($("#shBody"))}
+function closeSheet(){$("#modal").classList.remove("open")}
+$("#shClose").onclick=closeSheet;$("#modal").addEventListener("click",e=>{e.target.id==="modal"&&closeSheet()});
+/* ---------- ήχος / δόνηση ---------- */
+let actx=null;function beep(f=880,ms=70,vol=.15){if(!S.settings.beep)return;try{actx=actx||new(window.AudioContext||window.webkitAudioContext);const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;g.gain.value=vol;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+ms/1e3)}catch{}}
+function buzz(p=40){if(S.settings.vib&&navigator.vibrate)try{navigator.vibrate(p)}catch{}}
+/* ---------- αισθητήρες ---------- */
+let stopFns=[];function onStop(f){stopFns.push(f)}
+function stopAll(){stopFns.forEach(f=>{try{f()}catch{}});stopFns=[]}
+async function motionPermission(){try{if(typeof DeviceMotionEvent!=="undefined"&&DeviceMotionEvent.requestPermission){const r=await DeviceMotionEvent.requestPermission();if(r!=="granted")return false}if(typeof DeviceOrientationEvent!=="undefined"&&DeviceOrientationEvent.requestPermission){await DeviceOrientationEvent.requestPermission()}}catch{}return true}
+function listen(target,ev,fn,opt){target.addEventListener(ev,fn,opt);onStop(()=>target.removeEventListener(ev,fn,opt))}
+/* βαρύτητα με εξομάλυνση */
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+function gravity(cb,k=.15){let g=null;listen(window,"devicemotion",e=>{const a=e.accelerationIncludingGravity;if(!a||a.x==null)return;const sg=IOS?-1:1,v={x:a.x*sg,y:a.y*sg,z:a.z*sg};g=g?{x:g.x+(v.x-g.x)*k,y:g.y+(v.y-g.y)*k,z:g.z+(v.z-g.z)*k}:v;cb(g)})}
+async function camera(video,opts={}){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("nocam");
+ const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:opts.front?"user":{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}},audio:false});
+ video.srcObject=st;video.setAttribute("playsinline","");video.muted=true;await video.play().catch(()=>{});onStop(()=>st.getTracks().forEach(t=>t.stop()));return st}
+function camError(el,e){el.innerHTML=`<div class="warn">📷 Δεν άνοιξε η κάμερα. Δώσε άδεια κάμερας στην εφαρμογή (πάτα το λουκέτο δίπλα στη διεύθυνση ή Ρυθμίσεις → Εφαρμογές → Chrome → Άδειες) και ξαναδοκίμασε.</div>`}
+let wakeLock=null;async function keepAwake(){try{if("wakeLock"in navigator){wakeLock=await navigator.wakeLock.request("screen");onStop(()=>{try{wakeLock&&wakeLock.release()}catch{}wakeLock=null})}}catch{}}
+/* ---------- αποθήκευση μέτρησης / λίστα ---------- */
+function saveMeasure(tool,title,text){const name=prompt("Όνομα για τη μέτρηση (π.χ. δουλειά ή χώρος):",title||"");if(name===null)return;S.saved.unshift({id:uid(),at:Date.now(),tool,title:name||title||"Μέτρηση",text});changed();toast("✓ Αποθηκεύτηκε στις Μετρήσεις.")}
+function addToList(items,from){if(!items||!items.length)return;items.forEach(i=>{const ex=S.list.find(x=>x.item===i.item&&x.unit===i.unit&&!x.done);ex?ex.qty=+(ex.qty+i.qty).toFixed(2):S.list.push({id:uid(),item:i.item,qty:+(+i.qty).toFixed(2),unit:i.unit||"",from:from||"",done:false})});changed();updCount();toast("✓ Μπήκαν στη λίστα υλικών ("+items.length+").")}
+function updCount(){const n=S.list.filter(x=>!x.done).length;$("#cntList").innerHTML=n?` <span class="cnt">${n}</span>`:""}
+async function shareText(title,text){try{if(navigator.share){await navigator.share({title,text});return}}catch(e){if(e&&e.name==="AbortError")return}try{await navigator.clipboard.writeText(text);toast("✓ Αντιγράφηκε — επικόλλησέ το όπου θέλεις.")}catch{prompt("Αντίγραψε:",text)}}
+/* =========================================================
+   ΥΠΟΛΟΓΙΣΜΟΙ (κοινό πλαίσιο)
+   ========================================================= */
+const ceil=Math.ceil;
+const CALCS={
+plakakia:{t:"Πλακάκια",ic:"🟫",d:"τεμάχια, κουτιά, κόλλα, αρμόστοκος",
+ help:"Βάλε τις διαστάσεις του χώρου και του πλακακιού. Η φύρα (συνήθως 10%, 15% σε διαγώνιο στρώσιμο) καλύπτει κοψίματα και σπασίματα. Ο αρμόστοκος υπολογίζεται με τον γνωστό τύπο των κατασκευαστών: (Α+Β)/(Α×Β) × πλάτος αρμού × βάθος × 1,6.",
+ f:[["L","Μήκος χώρου","m",4],["W","Πλάτος χώρου","m",3],["minus","Αφαίρεση (ντουζιέρα, ντουλάπια)","m²",0],["a","Πλακάκι μήκος","cm",60],["b","Πλακάκι πλάτος","cm",60],["thick","Πάχος πλακακιού","mm",9],["joint","Αρμός","mm",3],["waste","Φύρα","%",10],["box","Τετραγωνικά ανά κουτί","m²",1.44],["glue","Κόλλα ανά m²","kg",5],["bag","Σακί κόλλας","kg",25]],
+ c(v){const A=Math.max(0,v.L*v.W-v.minus),tA=v.a*v.b/1e4,n=ceil(A*(1+v.waste/100)/tA),m2=n*tA,boxes=v.box>0?ceil(A*(1+v.waste/100)/v.box):0,glue=A*v.glue,gb=ceil(glue/v.bag),am=v.a*10,bm=v.b*10,grout=(am+bm)/(am*bm)*v.joint*v.thick*1.6*A;
+  return{r:[["Εμβαδό",nf(A)+" m²"],["Πλακάκια (με φύρα)",n+" τεμ.",1],["Αντιστοιχούν σε",nf(m2)+" m²"],boxes?["Κουτιά",boxes+" κουτιά",1]:null,["Κόλλα",nf(glue,1)+" kg → "+gb+" σακιά",1],["Αρμόστοκος",nf(grout,1)+" kg"],["Σταυρουδάκια (περίπου)",ceil(n*3)+" τεμ."]],
+  l:[{item:`Πλακάκια ${v.a}×${v.b}`,qty:boxes||n,unit:boxes?"κουτιά":"τεμ."},{item:"Κόλλα πλακιδίων "+v.bag+"kg",qty:gb,unit:"σακιά"},{item:"Αρμόστοκος",qty:ceil(grout),unit:"kg"},{item:"Σταυρουδάκια "+v.joint+"mm",qty:ceil(n*3),unit:"τεμ."}]}}},
+bogia:{t:"Μπογιά",ic:"🎨",d:"λίτρα για τοίχους και ταβάνι",
+ help:"Υπολογίζει τοίχους από την περίμετρο × ύψος, μείον πόρτες και παράθυρα. Η απόδοση γράφεται στο δοχείο (συνήθως 10–12 m² ανά λίτρο ανά χέρι). Το αστάρι υπολογίζεται με ένα χέρι.",
+ f:[["L","Μήκος δωματίου","m",4],["W","Πλάτος δωματίου","m",3],["H","Ύψος","m",2.7],["doors","Πόρτες","τεμ.",1],["wins","Παράθυρα","τεμ.",1],["ceil","Και ταβάνι; (1=ναι, 0=όχι)","",1],["coats","Χέρια","",2],["cov","Απόδοση","m²/λίτρο",10],["can","Δοχείο","λίτρα",9],["prim","Απόδοση αστάρι","m²/λίτρο",12]],
+ c(v){const walls=Math.max(0,2*(v.L+v.W)*v.H-v.doors*1.8-v.wins*1.5),ce=v.ceil?v.L*v.W:0,A=walls+ce,lit=A*v.coats/v.cov,cans=ceil(lit/v.can),pr=A/v.prim;
+  return{r:[["Τοίχοι",nf(walls)+" m²"],["Ταβάνι",nf(ce)+" m²"],["Σύνολο επιφάνειας",nf(A)+" m²"],["Χρώμα",nf(lit,1)+" λίτρα",1],["Δοχεία",cans+" × "+v.can+" λίτρα",1],["Αστάρι",nf(pr,1)+" λίτρα"]],
+  l:[{item:"Πλαστικό χρώμα "+v.can+"L",qty:cans,unit:"δοχεία"},{item:"Αστάρι",qty:ceil(pr),unit:"λίτρα"}]}}},
+beton:{t:"Μπετόν",ic:"🧱",d:"κυβικά, τσιμέντο, άμμος, χαλίκι",
+ help:"Ενδεικτικές αναλογίες για 1 m³ σκυροδέματος (περίπου C16/20–C20/25): 350 kg τσιμέντο, 0,45 m³ άμμος, 0,85 m³ χαλίκι, 180 λίτρα νερό. Για φέροντα στοιχεία με οπλισμό ακολουθείς πάντα τη μελέτη του μηχανικού.",
+ f:[["L","Μήκος","m",5],["W","Πλάτος","m",4],["th","Πάχος","cm",10],["extra","Περιθώριο","%",5],["cem","Τσιμέντο ανά m³","kg",350],["bag","Σακί τσιμέντου","kg",50]],
+ c(v){const V=v.L*v.W*v.th/100*(1+v.extra/100),c=V*v.cem;
+  return{r:[["Όγκος",nf(V,2)+" m³",1],["Τσιμέντο",nf(c,0)+" kg → "+ceil(c/v.bag)+" σακιά",1],["Άμμος",nf(V*.45,2)+" m³"],["Χαλίκι",nf(V*.85,2)+" m³"],["Νερό",nf(V*180,0)+" λίτρα"],["Ή έτοιμο μπετόν",nf(V,1)+" m³ από μπετονιέρα"]],
+  l:[{item:"Τσιμέντο "+v.bag+"kg",qty:ceil(c/v.bag),unit:"σακιά"},{item:"Άμμος",qty:+(V*.45).toFixed(2),unit:"m³"},{item:"Χαλίκι",qty:+(V*.85).toFixed(2),unit:"m³"}]}}},
+sovas:{t:"Σοβάς",ic:"🪣",d:"έτοιμο κονίαμα σε σακιά",
+ help:"Κατανάλωση έτοιμου σοβά: περίπου 14–16 kg ανά m² για κάθε 1 εκ. πάχος (δες το σακί του κατασκευαστή).",
+ f:[["A","Επιφάνεια","m²",30],["th","Πάχος","mm",20],["cons","Κατανάλωση ανά m² ανά εκ.","kg",15],["bag","Σακί","kg",40],["extra","Φύρα","%",5]],
+ c(v){const kg=v.A*v.th/10*v.cons*(1+v.extra/100),b=ceil(kg/v.bag);return{r:[["Ποσότητα",nf(kg,0)+" kg"],["Σακιά",b+" × "+v.bag+" kg",1]],l:[{item:"Έτοιμος σοβάς "+v.bag+"kg",qty:b,unit:"σακιά"}]}}},
+touvla:{t:"Τούβλα",ic:"🧱",d:"τεμάχια ανά τοίχο και κονίαμα",
+ help:"Τεμάχια ανά m² = 1 / ((μήκος όψης + αρμός) × (ύψος όψης + αρμός)). Για τούβλο 6×9×19: όρθιο (όψη 19×9) ≈ 50 τεμ./m², πλαγιαστό (όψη 19×6) ≈ 71 τεμ./m².",
+ f:[["L","Μήκος τοίχου","m",5],["H","Ύψος τοίχου","m",2.8],["open","Ανοίγματα","m²",2],["fl","Μήκος όψης τούβλου","cm",19],["fh","Ύψος όψης τούβλου","cm",9],["j","Αρμός","cm",1],["waste","Φύρα","%",5],["mort","Κονίαμα ανά m²","λίτρα",22]],
+ c(v){const A=Math.max(0,v.L*v.H-v.open),per=1/((v.fl+v.j)/100*(v.fh+v.j)/100),n=ceil(A*per*(1+v.waste/100)),m=A*v.mort;return{r:[["Επιφάνεια",nf(A)+" m²"],["Ανά m²",nf(per,1)+" τεμ."],["Τούβλα",n+" τεμ.",1],["Κονίαμα",nf(m,0)+" λίτρα ("+nf(m/1000,2)+" m³)"]],l:[{item:`Τούβλα ${v.fl}×${v.fh}`,qty:n,unit:"τεμ."},{item:"Κονίαμα λάσπης",qty:+(m/1000).toFixed(2),unit:"m³"}]}}},
+gypso:{t:"Γυψοσανίδα",ic:"🔲",d:"φύλλα, προφίλ, βίδες, στόκος",
+ help:"Ορθοστάτες ανά 60 εκ., οδηγοί πάνω και κάτω. Βίδες περίπου 25 ανά m² ανά στρώση. Στόκος αρμών περίπου 0,35 kg/m² και ταινία περίπου 1,4 m ανά m² (ενδεικτικά).",
+ f:[["L","Μήκος τοίχου","m",4],["H","Ύψος","m",2.7],["sides","Πλευρές με γυψοσανίδα","",2],["layers","Στρώσεις ανά πλευρά","",1],["bw","Φύλλο πλάτος","m",1.2],["bh","Φύλλο ύψος","m",2.5],["step","Απόσταση ορθοστατών","cm",60],["prof","Μήκος προφίλ","m",3],["waste","Φύρα","%",10]],
+ c(v){const A=v.L*v.H,cov=A*v.sides*v.layers,boards=ceil(cov*(1+v.waste/100)/(v.bw*v.bh)),studs=ceil(v.L/(v.step/100))+1,studPcs=studs*ceil(v.H/v.prof),tracks=ceil(2*v.L/v.prof),screws=ceil(cov*25),st=cov*.35,tape=cov*1.4;
+  return{r:[["Επιφάνεια τοίχου",nf(A)+" m²"],["Φύλλα",boards+" φύλλα",1],["Ορθοστάτες",studs+" θέσεις → "+studPcs+" × "+v.prof+" m"],["Οδηγοί",tracks+" × "+v.prof+" m"],["Βίδες",screws+" τεμ."],["Στόκος αρμών",nf(st,1)+" kg"],["Ταινία αρμών",nf(tape,0)+" m"]],
+  l:[{item:`Γυψοσανίδα ${v.bw}×${v.bh}`,qty:boards,unit:"φύλλα"},{item:"Ορθοστάτης "+v.prof+"m",qty:studPcs,unit:"τεμ."},{item:"Οδηγός "+v.prof+"m",qty:tracks,unit:"τεμ."},{item:"Βίδες γυψοσανίδας",qty:screws,unit:"τεμ."},{item:"Στόκος αρμών",qty:ceil(st),unit:"kg"},{item:"Ταινία αρμών",qty:ceil(tape),unit:"m"}]}}},
+dapedo:{t:"Δάπεδο ξύλινο",ic:"🪵",d:"πακέτα, υπόστρωμα, σοβατεπί",
+ help:"Για δάπεδα σε πακέτα (π.χ. ξύλινα κουμπωτά). Φύρα 5–10% (περισσότερη για στρώσιμο ψαροκόκαλο). Σοβατεπί = περίμετρος μείον πόρτες.",
+ f:[["L","Μήκος","m",5],["W","Πλάτος","m",4],["pack","m² ανά πακέτο","m²",2.2],["waste","Φύρα","%",8],["doors","Πλάτος πορτών (σύνολο)","m",0.8],["skl","Μήκος σοβατεπί","m",2.4]],
+ c(v){const A=v.L*v.W,p=ceil(A*(1+v.waste/100)/v.pack),per=2*(v.L+v.W)-v.doors,sk=ceil(per*1.05/v.skl);return{r:[["Εμβαδό",nf(A)+" m²"],["Πακέτα",p+" πακέτα",1],["Υπόστρωμα",ceil(A*1.05)+" m²"],["Σοβατεπί",sk+" τεμ. ("+nf(per,1)+" m)"]],l:[{item:"Δάπεδο πακέτο "+v.pack+"m²",qty:p,unit:"πακέτα"},{item:"Υπόστρωμα",qty:ceil(A*1.05),unit:"m²"},{item:"Σοβατεπί "+v.skl+"m",qty:sk,unit:"τεμ."}]}}},
+skala:{t:"Σκάλα",ic:"🪜",d:"ρίχτι, πάτημα, κλίση",
+ help:"Κανόνας άνεσης (Blondel): 2 × ρίχτι + πάτημα ≈ 63 εκ. Άνετη σκάλα: ρίχτι 16–18 εκ., πάτημα 26–30 εκ. Ελέγχεις πάντα και τον κτιριοδομικό κανονισμό για το έργο σου.",
+ f:[["H","Συνολικό ύψος (δάπεδο σε δάπεδο)","cm",280],["maxR","Μέγιστο ρίχτι","cm",18],["blon","Βήμα Blondel","cm",63]],
+ c(v){const n=ceil(v.H/v.maxR),R=v.H/n,P=v.blon-2*R,run=P*(n-1),ang=Math.atan(R/P)/DEG,str=Math.hypot(v.H,run),ok=R>=15&&R<=18.5&&P>=25&&P<=32;
+  return{r:[["Σκαλοπάτια (ρίχτια)",n,1],["Ρίχτι",nf(R,1)+" εκ.",1],["Πάτημα",nf(P,1)+" εκ.",1],["Οριζόντιο μήκος",nf(run,0)+" εκ."],["Κλίση",nf(ang,1)+"°"],["Μήκος λιμπά (περίπου)",nf(str,0)+" εκ."],["Άνεση",ok?"✓ άνετη":"⚠ έλεγξε τις τιμές"]]}}},
+klisi:{t:"Κλίση & πτώση",ic:"📐",d:"%, μοίρες, πτώση σωλήνα, στέγη",
+ help:"Τυπικές κλίσεις: αποχέτευση 1–2%, δάπεδο μπάνιου προς σιφόνι 1–1,5%, βεράντα/ταράτσα 1–2%, κεραμοσκεπή περίπου 30–45%. Πτώση = μήκος × κλίση.",
+ f:[["len","Οριζόντιο μήκος","m",5],["pct","Κλίση","%",2]],
+ c(v){const drop=v.len*v.pct/100,deg=Math.atan(v.pct/100)/DEG,slope=Math.hypot(v.len,drop);return{r:[["Πτώση",nf(drop*100,1)+" εκ.",1],["Σε μοίρες",nf(deg,2)+"°"],["Χιλιοστά ανά μέτρο",nf(v.pct*10,1)+" mm/m"],["Μήκος στην κλίση",nf(slope,3)+" m"],["Αναλογία",v.pct>0?"1 : "+nf(100/v.pct,1):"—"]]}}},
+embado:{t:"Εμβαδά & όγκοι",ic:"⬛",d:"σχήματα, ορθή γωνία 3-4-5",
+ help:"Διάλεξε σχήμα. Για ορθή γωνία στο εργοτάξιο: μετράς 3 m στη μία πλευρά, 4 m στην άλλη, η διαγώνιος πρέπει να βγει 5 m (ή χρησιμοποίησε τη διαγώνιο που δίνει ο υπολογισμός).",
+ f:[["shape","Σχήμα","",0,[["Ορθογώνιο",0],["Τρίγωνο",1],["Κύκλος",2],["Τραπέζιο",3],["Κύλινδρος (όγκος)",4],["Κουτί (όγκος)",5]]],["a","Μήκος / βάση / διάμετρος","m",4],["b","Πλάτος / ύψος / 2η βάση","m",3],["c","Ύψος (τραπέζιο, κουτί)","m",1]],
+ c(v){const s=+v.shape;let r=[];if(s===0)r=[["Εμβαδό",nf(v.a*v.b,3)+" m²",1],["Περίμετρος",nf(2*(v.a+v.b),2)+" m"],["Διαγώνιος (για γωνία 90°)",nf(Math.hypot(v.a,v.b),3)+" m",1]];
+  if(s===1)r=[["Εμβαδό",nf(v.a*v.b/2,3)+" m²",1]];if(s===2)r=[["Εμβαδό",nf(Math.PI*v.a*v.a/4,3)+" m²",1],["Περιφέρεια",nf(Math.PI*v.a,3)+" m"]];
+  if(s===3)r=[["Εμβαδό",nf((v.a+v.b)/2*v.c,3)+" m²",1]];if(s===4){const V=Math.PI*v.a*v.a/4*v.b;r=[["Όγκος",nf(V,3)+" m³",1],["Σε λίτρα",nf(V*1000,0)+" λίτρα",1]]}
+  if(s===5){const V=v.a*v.b*v.c;r=[["Όγκος",nf(V,3)+" m³",1],["Σε λίτρα",nf(V*1000,0)+" λίτρα"]]}return{r}}},
+ohm:{t:"Ρεύμα & ισχύς",ic:"⚡",d:"Αμπέρ από Watt, νόμος του Ohm",
+ help:"Μονοφασικό: I = P / (V × συνφ). Τριφασικό: I = P / (√3 × V × συνφ). Για ωμικά φορτία (θερμοσίφωνας, κουζίνα) συνφ = 1, για μοτέρ περίπου 0,8–0,85.",
+ f:[["ph","Παροχή","",1,[["Μονοφασική 230V",1],["Τριφασική 400V",3]]],["P","Ισχύς","W",3000],["cos","Συντελεστής ισχύος (συνφ)","",1]],
+ c(v){const V=v.ph==3?400:230,I=v.ph==3?v.P/(Math.sqrt(3)*V*v.cos):v.P/(V*v.cos),R=v.ph==3?null:V*V/v.P;const br=[6,10,16,20,25,32,40,50,63].find(x=>x>=I*1.0);
+  return{r:[["Ρεύμα",nf(I,2)+" A",1],R?["Αντίσταση φορτίου",nf(R,1)+" Ω"]:null,["Ενέργεια ανά ώρα",nf(v.P/1000,2)+" kWh"],["Πλησιέστερη ασφάλεια (ενδεικτικά)",br?br+" A":"> 63 A"]]}}},
+kalodio:{t:"Καλώδιο & πτώση τάσης",ic:"🔌",d:"διατομή ανάλογα με μήκος και φορτίο",
+ help:"Υπολογίζει πτώση τάσης για χαλκό σε θερμοκρασία λειτουργίας (ειδική αντίσταση 0,0225 Ω·mm²/m). Συνηθισμένα όρια: 3% για φωτισμό, 5% για άλλες καταναλώσεις. Η φέρουσα ικανότητα είναι ενδεικτική για καλώδιο σε σωλήνα. ΔΕΝ αντικαθιστά μελέτη ή έλεγχο από αδειούχο ηλεκτρολόγο.",
+ f:[["ph","Παροχή","",1,[["Μονοφασική 230V",1],["Τριφασική 400V",3]]],["P","Ισχύς φορτίου","W",3000],["len","Μήκος γραμμής (μονή διαδρομή)","m",25],["cos","συνφ","",1],["lim","Όριο πτώσης","%",3]],
+ c(v){const V=v.ph==3?400:230,I=v.ph==3?v.P/(Math.sqrt(3)*V*v.cos):v.P/(V*v.cos),rho=.0225,amp={1.5:17.5,2.5:24,4:32,6:41,10:57,16:76,25:101,35:125};let pick=null;const rows=[["Ρεύμα",nf(I,2)+" A",1]];
+  for(const s of [1.5,2.5,4,6,10,16,25,35]){const dv=v.ph==3?Math.sqrt(3)*v.len*I*rho*v.cos/s:2*v.len*I*rho*v.cos/s,pc=dv/V*100,ok=pc<=v.lim&&amp[s]>=I;if(ok&&!pick)pick=s;rows.push([nf(s,1)+" mm²",nf(pc,2)+"% · έως "+nf(amp[s],1)+" A"+(ok?" ✓":"")])}
+  rows.splice(1,0,["Προτεινόμενη διατομή",pick?nf(pick,1)+" mm²":"μεγαλύτερη από 35 mm²",1]);return{r:rows}}},
+dexameni:{t:"Δεξαμενή & νερό",ic:"💧",d:"λίτρα δεξαμενής, χρόνος γεμίσματος",
+ help:"Κυλινδρική: διάμετρος και ύψος. Ορθογώνια: μήκος, πλάτος, ύψος. Η παροχή μετριέται εύκολα: γέμισε έναν κουβά 10 λίτρων και χρονομέτρησε.",
+ f:[["shape","Σχήμα","",0,[["Κυλινδρική όρθια",0],["Ορθογώνια",1]]],["a","Διάμετρος / μήκος","m",1.2],["b","Ύψος (κύλινδρος) / πλάτος","m",1.5],["c","Ύψος (ορθογώνια)","m",1],["fill","Γεμάτη σε","%",100],["flow","Παροχή βρύσης/αντλίας","λίτρα/λεπτό",15]],
+ c(v){const V=(+v.shape===0?Math.PI*v.a*v.a/4*v.b:v.a*v.b*v.c)*1000,f=V*v.fill/100,m=v.flow>0?f/v.flow:0;return{r:[["Χωρητικότητα",nf(V,0)+" λίτρα",1],["Τώρα περιέχει",nf(f,0)+" λίτρα"],["Χρόνος γεμίσματος",v.flow>0?(m>=60?Math.floor(m/60)+" ώ. "+Math.round(m%60)+" λ.":nf(m,1)+" λεπτά"):"—",1]]}}}
+};
+const CALC_DEF=id=>{const c=CALCS[id],v={};c.f.forEach(x=>v[x[0]]=x[3]);return v};
+function calcView(id){const c=CALCS[id],v=Object.assign(CALC_DEF(id),S.calc[id]||{});
+ const inp=x=>x[4]?`<label class="fld${x[1].length>22?" full":""}">${esc(x[1])}<span class="in"><select data-k="${x[0]}">${x[4].map(o=>`<option value="${o[1]}"${+v[x[0]]===o[1]?" selected":""}>${esc(o[0])}</option>`).join("")}</select></span></label>`
+  :`<label class="fld${x[1].length>24?" full":""}">${esc(x[1])}<span class="in"><input type="number" inputmode="decimal" step="any" data-k="${x[0]}" value="${v[x[0]]}"><span class="u">${esc(x[2])}</span></span></label>`;
+ body(`<div class="card"><div class="fields">${c.f.map(inp).join("")}</div><div class="res" id="res"></div>
+ <div class="row" style="margin-top:12px"><button class="btn ghost small" id="cReset">↺ Αρχικές τιμές</button><button class="btn ghost small" id="cSave">📒 Αποθήκευση</button><button class="btn amber small" id="cList" hidden>🛒 Στη λίστα</button></div></div>
+ ${["kalodio","ohm"].includes(id)?`<div class="warn">⚠️ Ενδεικτικοί υπολογισμοί. Ηλεκτρολογική εγκατάσταση κάνει και υπογράφει μόνο αδειούχος ηλεκτρολόγος, σύμφωνα με τους ισχύοντες κανονισμούς.</div>`:""}
+ ${id==="beton"?`<div class="warn">⚠️ Για κολόνες, δοκάρια, πλάκες και θεμέλια ισχύει η στατική μελέτη του μηχανικού.</div>`:""}`);
+ let last=null;const run=()=>{const vals={};$$("[data-k]").forEach(e=>{const n=parseFloat(String(e.value).replace(",","."));vals[e.dataset.k]=isFinite(n)?n:0});S.calc[id]=vals;write();
+  try{last=c.c(vals)}catch{last={r:[["Σφάλμα","έλεγξε τις τιμές"]]}}
+  $("#res").innerHTML=last.r.filter(Boolean).map(r=>`<div class="kv${r[2]?" hl":""}"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join("");$("#cList").hidden=!last.l};
+ $$("[data-k]").forEach(e=>e.addEventListener("input",run));run();
+ $("#cReset").onclick=()=>{delete S.calc[id];write();calcView(id)};
+ $("#cSave").onclick=()=>{const vals=c.f.map(x=>{const val=S.calc[id][x[0]];return x[4]?x[1]+": "+(x[4].find(o=>o[1]===+val)||[val])[0]:x[1]+": "+val+" "+x[2]}).join("\n");saveMeasure(id,c.t,vals+"\n—\n"+last.r.filter(Boolean).map(r=>r[0]+": "+r[1]).join("\n"))};
+ $("#cList").onclick=()=>addToList(last.l.filter(i=>i.qty>0),c.t)}
+/* =========================================================
+   ΛΙΣΤΑ ΕΡΓΑΛΕΙΩΝ
+   ========================================================= */
+const TOOLS=[
+ {cat:"Μέτρηση με το κινητό",items:[
+  ["alfadi","📏","Αλφάδι","επιφάνεια, ράβδος, μοίρες, %","s"],
+  ["ar","📐","Μετροταινία","μήκη με την κάμερα (επαυξημένη πραγματικότητα)","s"],
+  ["xarakas","📏","Χάρακας & παχύμετρο","στην οθόνη, με βαθμονόμηση","s"],
+  ["laser","🔦","Λέιζερ & γωνία","οριζόντια γραμμή και γωνίες με κάμερα","s"],
+  ["apostasi","🎯","Απόσταση & ύψος","με κάμερα και τριγωνομετρία","s"],
+  ["pyxida","🧭","Πυξίδα & θέση","προσανατολισμός, συντεταγμένες, υψόμετρο","s"],
+  ["ixometro","🔊","Ηχόμετρο","ντεσιμπέλ και προστασία ακοής","s"],
+  ["doniseis","〰️","Δονήσεις","μέτρηση κραδασμών","s"],
+  ["metallo","🧲","Ανιχνευτής μετάλλου","μαγνητικό πεδίο (όπου υποστηρίζεται)","s"],
+  ["fakos","💡","Φακός & μεγεθυντικός","φως κάμερας, ζουμ, πάγωμα εικόνας","s"]]},
+ {cat:"Υπολογισμοί υλικών",items:["plakakia","bogia","beton","sovas","touvla","gypso","dapedo","skala","klisi","embado"].map(k=>[k,CALCS[k].ic,CALCS[k].t,CALCS[k].d,""])},
+ {cat:"Ηλεκτρολογικά & υδραυλικά",items:["ohm","kalodio","dexameni"].map(k=>[k,CALCS[k].ic,CALCS[k].t,CALCS[k].d,"n"])},
+ {cat:"Πίνακες & μετατροπές",items:[["monades","🔁","Μετατροπή μονάδων","μήκος, πίεση, ισχύς, ροπή…","n"],["intses","📎","Ίντσες ↔ χιλιοστά","κλάσματα, σωλήνες","n"],["vides","🔩","Βίδες & τρυπάνια","ούπα, σπειρώματα, κλειδιά","n"],["xronometro","⏱️","Χρονόμετρο","πήξη, στέγνωμα, αντίστροφη μέτρηση","n"]]}
+];
+const ALL={};TOOLS.forEach(g=>g.items.forEach(i=>ALL[i[0]]={id:i[0],ic:i[1],t:i[2],d:i[3],cls:i[4],cat:g.cat}));
+const OUR_APPS=[["fotometra","📐","ΦωτοΜέτρα","διαστάσεις πάνω σε φωτογραφίες","https://aglentzakis-dot.github.io/fotometra/"],["identify","🔎","Identify-AI","τι εξάρτημα είναι από φωτογραφία","https://aglentzakis-dot.github.io/Identify-AI/"],["dromologio","🗺️","Δρομολόγιο","πελάτες, δουλειές, προσφορές","https://aglentzakis-dot.github.io/dromologio/"]];
+/* =========================================================
+   ΠΡΟΒΟΛΕΣ
+   ========================================================= */
+let view="home",cur=null,q="";
+function body(h){$("#toolBody").innerHTML=h}
+function setNav(n){$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.nav===n))}
+function home(){stopAll();view="home";cur=null;setNav("home");history.replaceState(null,"",location.pathname);
+ const m=$("#main"),qq=q.trim().toLowerCase();
+ const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+ let h=`<label class="search"><span>🔍</span><input id="q" type="search" placeholder="Βρες εργαλείο (π.χ. αλφάδι, πλακάκια)" value="${esc(q)}"></label>`;
+ if(!qq)try{window.EfarmogesMas&&(h+=EfarmogesMas.slot())}catch{}
+ for(const g of TOOLS){const its=g.items.filter(i=>!qq||norm(i[2]+" "+i[3]).includes(norm(qq)));if(!its.length)continue;
+  h+=`<h2 class="cat">${esc(g.cat)}</h2><div class="grid">${its.map(i=>`<button class="tile" data-tool="${i[0]}"><span class="ic ${i[4]}">${i[1]}</span><span><b>${esc(i[2])}</b><small>${esc(i[3])}</small></span></button>`).join("")}</div>`}
+ if(!qq)h+=`<h2 class="cat">Δένει με τις εφαρμογές GlenApps</h2><div class="grid">${OUR_APPS.map(a=>`<a class="tile" href="${a[4]}" target="_blank" rel="noopener" style="text-decoration:none"><span class="ic s">${a[1]}</span><span><b>${a[2]} ↗</b><small>${a[3]}</small></span></a>`).join("")}</div>`;
+ h+=`<p class="footer">Εργαλειοθήκη ${APP_VERSION} · © 2026 ${COPY_OWNER} · GlenApps<br>Οι μετρήσεις με αισθητήρες κινητού είναι ενδεικτικές.</p>`;
+ m.innerHTML=h;const qi=$("#q");qi.addEventListener("input",()=>{q=qi.value;const p=qi.selectionStart;home();const n=$("#q");n.focus();try{n.setSelectionRange(p,p)}catch{}});window.scrollTo(0,0)}
+function openTool(id,push=true){stopAll();const t=ALL[id]||(id==="lista"?{t:"Λίστα υλικών",ic:"🛒"}:id==="saved"?{t:"Μετρήσεις",ic:"📒"}:null);if(!t)return home();
+ view="tool";cur=id;setNav(id==="lista"?"lista":id==="saved"?"saved":"home");if(push)history.pushState({t:id},"","?t="+id);
+ const helpTxt=(CALCS[id]&&CALCS[id].help)||HELP[id]||"";
+ $("#main").innerHTML=`<div class="toolhead"><button class="back" data-act="home" aria-label="Πίσω">←</button><h2>${t.ic} ${esc(t.t)}</h2>${helpTxt?`<button class="help" data-act="help" aria-label="Βοήθεια">?</button>`:""}</div><div id="toolBody"></div>`;
+ window.scrollTo(0,0);if(CALCS[id])return calcView(id);(TOOLFN[id]||home)()}
+window.addEventListener("popstate",()=>{const t=new URLSearchParams(location.search).get("t");t?openTool(t,false):home()});
+const HELP={
+ alfadi:"Ακούμπησε το κινητό πάνω στην επιφάνεια (Επιφάνεια) ή όρθιο στο πλάι του, πάνω σε ράφι ή κάσα (Ράβδος). Αν η θήκη του κινητού είναι στραβή, πάτα «Μηδένισε» πάνω σε επιφάνεια που ξέρεις ότι είναι ίσια — ή κάνε τη διπλή μέτρηση: μέτρα, γύρνα το κινητό 180° στο ίδιο σημείο και πάτα ξανά «Μηδένισε».",
+ ar:"Δουλεύει σε κινητά Android με τις «Υπηρεσίες Google Play για επαυξημένη πραγματικότητα» (σχεδόν όλα τα σύγχρονα). Κούνα αργά το κινητό μέχρι να εμφανιστεί ο κύκλος στόχευσης πάνω στην επιφάνεια, πάτα «+» στην αρχή και «+» στο τέλος. Μπορείς να συνεχίσεις με περισσότερα σημεία για περίμετρο. Ακρίβεια περίπου ±1–2 εκ. ανά μέτρο.",
+ xarakas:"Η οθόνη κάθε κινητού έχει άλλη πυκνότητα, γι' αυτό η πρώτη φορά θέλει βαθμονόμηση με μια τραπεζική ή οποιαδήποτε κάρτα (85,6 χιλ.). Σύρε τις δύο κίτρινες γραμμές για να μετρήσεις σαν παχύμετρο.",
+ laser:"Η κίτρινη γραμμή μένει πάντα οριζόντια, όπως ένα λέιζερ, για να ευθυγραμμίσεις κάδρα, ράφια και πλακάκια. Για γωνία: στόχευσε την πρώτη ευθεία και πάτα «Σημείο Α», μετά τη δεύτερη και «Σημείο Β».",
+ apostasi:"Γράψε σε τι ύψος κρατάς το κινητό (συνήθως ύψος ματιών μείον 10 εκ.). Στόχευσε με το σταυρόνημα το σημείο που το αντικείμενο ακουμπά στο έδαφος και πάτα «Βάση». Μετά στόχευσε την κορυφή και πάτα «Κορυφή» για το ύψος. Το έδαφος πρέπει να είναι επίπεδο.",
+ pyxida:"Κράτα το κινητό οριζόντια και μακριά από μέταλλα και μαγνήτες. Αν η πυξίδα τρελαίνεται, κάνε με το κινητό κινήσεις σε σχήμα «8» για βαθμονόμηση.",
+ ixometro:"Η μέτρηση γίνεται με το μικρόφωνο του κινητού και είναι ενδεικτική (±3–5 dB) — δεν είναι πιστοποιημένο όργανο. Μπορείς να τη διορθώσεις στις Ρυθμίσεις συγκρίνοντας με κανονικό ηχόμετρο. Πάνω από 85 dB για ώρες χρειάζονται ωτοασπίδες.",
+ doniseis:"Ακούμπησε το κινητό σταθερά πάνω στο μηχάνημα ή στην επιφάνεια. Δείχνει την ένταση των κραδασμών σε m/s² και την κορυφή.",
+ metallo:"Χρησιμοποιεί το μαγνητόμετρο του κινητού (αυτό που δουλεύει και στην πυξίδα). Βρίσκει σιδερένια αντικείμενα (καρφιά, βίδες, οπλισμό) κοντά στην επιφάνεια, όχι αλουμίνιο ή χαλκό.",
+ fakos:"Ο φακός ανάβει το φλας της κάμερας. Ο μεγεθυντικός δείχνει την κάμερα με ζουμ — πάτα «Πάγωμα» για να κρατήσεις την εικόνα και να τη διαβάσεις με την ησυχία σου (π.χ. ετικέτα πίσω από ντουλάπι).",
+ monades:"Γράψε τιμή σε όποια μονάδα θέλεις — όλες οι άλλες αλλάζουν αμέσως.",
+ intses:"Γράψε χιλιοστά για να πάρεις ίντσες με κλάσμα (έως 1/16), ή γράψε ίντσες όπως «3 5/8» για χιλιοστά.",
+ vides:"Ενδεικτικοί πίνακες για τα πιο συνηθισμένα μεγέθη. Για ειδικά ούπα ή χημικά βύσματα ακολουθείς τις οδηγίες του κατασκευαστή.",
+ xronometro:"Αντίστροφη μέτρηση για χρόνους αναμονής (πήξη κόλλας, στέγνωμα χρώματος) και κανονικό χρονόμετρο. Κράτα την εφαρμογή ανοιχτή — η οθόνη δεν θα σβήσει."};
+/* =========================================================
+   ΕΡΓΑΛΕΙΑ ΜΕ ΑΙΣΘΗΤΗΡΕΣ
+   ========================================================= */
+const TOOLFN={};
+function startBtn(label,fn){body(`<div class="card" style="text-align:center"><p class="note">Χρειάζεται άδεια για τους αισθητήρες του κινητού.</p><button class="btn amber wide" id="go">${label}</button></div>`);$("#go").onclick=fn}
+/* ---- Αλφάδι ---- */
+TOOLFN.alfadi=async function(){const go=async()=>{await motionPermission();let mode=S.settings.lvlMode||"surf",unit=S.settings.lvlUnit||"deg",hold=false,lastOk=0,cr={rawx:0,rawy:0,rawr:0};
+ body(`<div class="seg" id="mSeg"><button data-m="surf">Επιφάνεια</button><button data-m="bar">Ράβδος</button></div>
+ <div id="lvlBox"></div><div class="big" id="lv">—</div><div class="note" style="text-align:center" id="lv2"></div>
+ <div class="seg" id="uSeg"><button data-u="deg">μοίρες °</button><button data-u="pct">κλίση %</button><button data-u="mm">mm/m</button></div>
+ <div class="row"><button class="btn ghost" id="zero">⊙ Μηδένισε</button><button class="btn ghost" id="hold">⏸ Κράτα</button><button class="btn ghost" id="sv">📒</button></div>
+ <p class="note" id="zinfo"></p>`);
+ const paintSeg=()=>{$$("#mSeg button").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));$$("#uSeg button").forEach(b=>b.classList.toggle("on",b.dataset.u===unit));
+  $("#lvlBox").innerHTML=mode==="surf"?`<div class="lvl"><div class="ring" style="width:56px;height:56px"></div><div class="ring" style="width:45%;height:45%"></div><div class="ring" style="width:80%;height:80%"></div><div class="bub" id="bub"></div></div>`:`<div class="bar"><div class="m" style="left:calc(50% - 40px)"></div><div class="m" style="left:calc(50% + 37px)"></div><div class="bub" id="bub"></div></div>`;
+  const z=S.settings.levelZero;$("#zinfo").textContent=(z.x||z.y||z.r)?"Διόρθωση μηδενός ενεργή. Πάτα παρατεταμένα «Μηδένισε» για επαναφορά.":""};
+ paintSeg();$("#mSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;S.settings.lvlMode=mode;write();paintSeg()};
+ $("#uSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;unit=b.dataset.u;S.settings.lvlUnit=unit;write();paintSeg()};
+ const fmt=a=>unit==="deg"?nf(a,1)+"°":unit==="pct"?nf(Math.tan(a*DEG)*100,1)+"%":nf(Math.tan(a*DEG)*1000,0)+" mm/m";
+ let zeroPend=null;
+ $("#zero").onclick=()=>{const z=S.settings.levelZero;if(zeroPend&&Date.now()-zeroPend.t<60000){z.x=(zeroPend.x+cr.rawx)/2;z.y=(zeroPend.y+cr.rawy)/2;z.r=(zeroPend.r+cr.rawr)/2;zeroPend=null;toast("✓ Διπλή βαθμονόμηση ολοκληρώθηκε.")}else{z.x=cr.rawx;z.y=cr.rawy;z.r=cr.rawr;zeroPend={t:Date.now(),x:cr.rawx,y:cr.rawy,r:cr.rawr};toast("✓ Μηδενίστηκε. (Για διπλή: γύρνα 180° και ξαναπάτα.)")}write();paintSeg()};
+ let lp;$("#zero").addEventListener("pointerdown",()=>{lp=setTimeout(()=>{S.settings.levelZero={x:0,y:0,r:0};write();paintSeg();toast("Η διόρθωση μηδενός σβήστηκε.")},900)});$("#zero").addEventListener("pointerup",()=>clearTimeout(lp));
+ $("#hold").onclick=()=>{hold=!hold;$("#hold").textContent=hold?"▶ Συνέχεια":"⏸ Κράτα"};
+ $("#sv").onclick=()=>saveMeasure("alfadi","Αλφάδι",$("#lv").textContent+" ("+(mode==="surf"?"επιφάνεια":"ράβδος")+")\n"+$("#lv2").textContent);
+ let got=false;setTimeout(()=>{if(!got)$("#lv2").textContent="Δεν λαμβάνονται τιμές από τον αισθητήρα. Άνοιξε την εφαρμογή από κινητό."},2500);
+ gravity(g=>{got=true;if(hold)return;const z=S.settings.levelZero;
+  const rawx=Math.atan2(g.x,Math.hypot(g.y,g.z))/DEG,rawy=Math.atan2(g.y,Math.hypot(g.x,g.z))/DEG;let rawr=Math.atan2(g.x,g.y)/DEG;cr={rawx,rawy,rawr};
+  const ok=(a)=>Math.abs(a)<.25;
+  if(mode==="surf"){const x=rawx-z.x,y=rawy-z.y,tot=Math.hypot(x,y),R=($(".lvl")||{}).clientWidth/2-30||120,k=Math.min(1,tot/10),ang=Math.atan2(y,x);
+   const b=$("#bub");if(b)b.style.transform=`translate(calc(-50% + ${Math.cos(ang)*k*R}px),calc(-50% + ${-Math.sin(ang)*k*R}px))`;
+   $("#lv").textContent=fmt(tot);$("#lv").classList.toggle("level-ok",ok(tot));$("#lv2").textContent=`Χ ${nf(x,1)}° · Υ ${nf(-y,1)}°`;if(ok(tot)&&Date.now()-lastOk>1500){lastOk=Date.now();beep(1200,60);buzz(30)}}
+  else{let r=rawr-z.r;let near=Math.round(r/90)*90,dev=r-near;if(Math.abs(g.z)>8){$("#lv2").textContent="Σήκωσε το κινητό όρθιο ή ακούμπησέ το στο πλάι του.";}
+   else $("#lv2").textContent=(Math.abs(near)%180===0?"Κατακόρυφο (στάθμη)":"Οριζόντιο")+" · απόκλιση";
+   const b=$("#bub");if(b){const W=b.parentElement.clientWidth/2-40;b.style.left=`calc(50% + ${Math.max(-1,Math.min(1,-dev/10))*W}px)`}
+   $("#lv").textContent=fmt(Math.abs(dev));$("#lv").classList.toggle("level-ok",ok(dev));if(ok(dev)&&Date.now()-lastOk>1500){lastOk=Date.now();beep(1200,60);buzz(30)}}})};
+ startBtn("Άνοιγμα αλφαδιού",go)};
+/* ---- Χάρακας / παχύμετρο ---- */
+TOOLFN.xarakas=function(){const ppm=S.settings.pxPerMm;if(!ppm)return calibRuler();let inch=S.settings.rulerIn||false,a=40,b=140;
+ body(`<div class="seg" id="ru"><button data-u="mm">εκ. / χιλ.</button><button data-u="in">ίντσες</button></div><div class="rulerwrap" id="rw"><canvas id="rc"></canvas></div><div class="mid" id="rd" style="margin:10px 0">—</div><div class="row"><button class="btn ghost small" id="cal">⚙️ Ξανά βαθμονόμηση</button><button class="btn ghost small" id="sv">📒 Αποθήκευση</button></div>`);
+ const cv=$("#rc"),rw=$("#rw");let drag=null;
+ const draw=()=>{const dpr=devicePixelRatio||1,W=rw.clientWidth,H=rw.clientHeight;cv.width=W*dpr;cv.height=H*dpr;const x=cv.getContext("2d");x.scale(dpr,dpr);x.clearRect(0,0,W,H);
+  const cs=getComputedStyle(document.documentElement),ink=cs.getPropertyValue("--ink").trim();x.strokeStyle=ink;x.fillStyle=ink;x.font="700 12px system-ui";x.lineWidth=1;
+  const pu=inch?ppm*25.4/16:ppm;const n=Math.floor(H/pu);for(let i=0;i<=n;i++){const y=i*pu+.5;let L=10;if(inch){L=i%16===0?34:i%8===0?24:i%4===0?17:i%2===0?12:8}else{L=i%10===0?34:i%5===0?22:12}x.beginPath();x.moveTo(0,y);x.lineTo(L,y);x.stroke();
+   if(inch?i%16===0:i%10===0){x.save();x.translate(40,y+4);x.fillText(String(inch?i/16:i/10),0,0);x.restore()}}
+  x.fillStyle="#F2B63255";x.fillRect(0,Math.min(a,b),W,Math.abs(b-a));x.fillStyle="#F2B632";x.fillRect(0,a-1.5,W,3);x.fillRect(0,b-1.5,W,3);
+  [a,b].forEach(y=>{x.beginPath();x.arc(W-30,y,13,0,7);x.fill()});
+  const mm=Math.abs(b-a)/ppm;$("#rd").textContent=inch?nf(mm/25.4,3)+"″ ("+toFrac(mm/25.4)+"″)":nf(mm,1)+" χιλ. · "+nf(mm/10,2)+" εκ."};
+ const pos=e=>{const r=rw.getBoundingClientRect();return e.clientY-r.top};
+ rw.addEventListener("pointerdown",e=>{const y=pos(e);drag=Math.abs(y-a)<Math.abs(y-b)?"a":"b";rw.setPointerCapture(e.pointerId);move(e)});
+ const move=e=>{if(!drag)return;const y=Math.max(0,Math.min(rw.clientHeight,pos(e)));drag==="a"?a=y:b=y;draw()};rw.addEventListener("pointermove",move);rw.addEventListener("pointerup",()=>drag=null);
+ const paint=()=>$$("#ru button").forEach(x=>x.classList.toggle("on",(x.dataset.u==="in")===inch));paint();
+ $("#ru").onclick=e=>{const bb=e.target.closest("button");if(!bb)return;inch=bb.dataset.u==="in";S.settings.rulerIn=inch;write();paint();draw()};
+ $("#cal").onclick=calibRuler;$("#sv").onclick=()=>saveMeasure("xarakas","Χάρακας",$("#rd").textContent);
+ requestAnimationFrame(draw);listen(window,"resize",draw)};
+function calibRuler(){let ppm=S.settings.pxPerMm||(160/25.4);body(`<div class="card"><h3>Βαθμονόμηση χάρακα</h3><p class="note">Ακούμπησε μια κάρτα <b>όρθια</b> (τραπεζική, ταυτότητα, κάρτα μέλους — όλες έχουν 85,6 × 54 χιλ.) πάνω στην οθόνη και άλλαξε το μέγεθος μέχρι το πλαίσιο να ταιριάζει ακριβώς με την κάρτα.</p>
+ <div id="cc" style="border:2.5px dashed var(--blue);border-radius:10px;margin:14px auto;display:flex;align-items:center;justify-content:center;color:var(--blue);font-weight:800">κάρτα</div>
+ <input type="range" id="cr" min="2" max="20" step="0.01" value="${ppm}" style="width:100%"><div class="row" style="margin-top:8px"><button class="btn ghost" id="m">−</button><button class="btn ghost" id="p">+</button></div><button class="btn amber wide" style="margin-top:12px" id="ok">✓ Ταιριάζει</button></div>`);
+ const set=()=>{const c=$("#cc");c.style.width=53.98*ppm+"px";c.style.height=85.6*ppm+"px";$("#cr").value=ppm};set();
+ $("#cr").oninput=e=>{ppm=+e.target.value;set()};$("#m").onclick=()=>{ppm-=.02;set()};$("#p").onclick=()=>{ppm+=.02;set()};
+ $("#ok").onclick=()=>{S.settings.pxPerMm=ppm;changed();toast("✓ Ο χάρακας βαθμονομήθηκε.");TOOLFN.xarakas()}}
+function toFrac(inch){const w=Math.floor(inch);let n=Math.round((inch-w)*16),d=16;if(n===16)return String(w+1);while(n&&n%2===0&&d>1){n/=2;d/=2}return(w?w+(n?" ":""):"")+(n?n+"/"+d:w?"":"0")}
+/* ---- Λέιζερ & γωνία ---- */
+TOOLFN.laser=function(){const go=async()=>{await motionPermission();body(`<div class="cam" id="cam"><video id="v"></video><canvas class="ov" id="ov"></canvas><div class="hud"><span class="pill" id="ang">—</span><span class="pill" id="angAB" hidden></span></div></div>
+ <div class="row" style="margin-top:10px"><button class="btn ghost" id="pa">Σημείο Α</button><button class="btn ghost" id="pb" disabled>Σημείο Β</button><button class="btn ghost" id="sv">📒</button></div><p class="note">Κράτα το κινητό όρθιο. Η κίτρινη γραμμή είναι πάντα οριζόντια, η μπλε πάντα κατακόρυφη.</p>`);
+ try{await camera($("#v"))}catch(e){return camError($("#cam"),e)}keepAwake();let roll=0,pitch=0,A=null,txt="";const ov=$("#ov");
+ gravity(g=>{roll=Math.atan2(g.x,g.y)/DEG;pitch=Math.atan2(g.z,Math.hypot(g.x,g.y))/DEG});
+ const loop=()=>{if(cur!=="laser")return;const dpr=devicePixelRatio||1,W=ov.clientWidth,H=ov.clientHeight;ov.width=W*dpr;ov.height=H*dpr;const x=ov.getContext("2d");x.scale(dpr,dpr);x.translate(W/2,H/2);x.rotate(roll*DEG);
+  const ok=Math.abs(((roll%90)+90)%90)<.3||Math.abs(((roll%90)+90)%90-90)<.3;x.lineWidth=3;x.strokeStyle=ok?"#5BE37A":"#FDD117";x.shadowColor="#000";x.shadowBlur=4;x.beginPath();x.moveTo(-W*2,0);x.lineTo(W*2,0);x.stroke();
+  x.strokeStyle="#5AB0FF";x.lineWidth=2;x.beginPath();x.moveTo(0,-H*2);x.lineTo(0,H*2);x.stroke();
+  const r=-roll;txt="Κλίση κινητού "+nf(Math.abs(((r+45)%90+90)%90-45),1)+"°";$("#ang").textContent=txt;requestAnimationFrame(loop)};loop();
+ $("#pa").onclick=()=>{A=roll;$("#pb").disabled=false;toast("Τώρα στόχευσε τη δεύτερη ευθεία και πάτα «Σημείο Β».")};
+ $("#pb").onclick=()=>{let d=Math.abs(roll-A)%360;if(d>180)d=360-d;$("#angAB").hidden=false;$("#angAB").textContent="Γωνία "+nf(d,1)+"° (συμπλ. "+nf(180-d,1)+"°)";beep()};
+ $("#sv").onclick=()=>saveMeasure("laser","Γωνία",($("#angAB").hidden?txt:$("#angAB").textContent))};startBtn("Άνοιγμα κάμερας",go)};
+/* ---- Απόσταση & ύψος ---- */
+TOOLFN.apostasi=function(){const go=async()=>{await motionPermission();let h=S.settings.phoneH||150,beta=null,dist=null;
+ body(`<div class="cam" id="cam"><video id="v"></video><svg class="cross" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="none" stroke="#FDD117" stroke-width="3"/><path d="M32 0v22M32 42v22M0 32h22M42 32h22" stroke="#FDD117" stroke-width="3"/></svg><div class="hud"><span class="pill" id="d1">Απόσταση —</span><span class="pill" id="d2">Ύψος —</span></div></div>
+ <label class="fld" style="margin-top:10px">Ύψος κινητού από το έδαφος<span class="in"><input type="number" id="ph" value="${h}" inputmode="decimal"><span class="u">εκ.</span></span></label>
+ <div class="row" style="margin-top:10px"><button class="btn amber" id="b1">⬇ Βάση</button><button class="btn" id="b2" disabled>⬆ Κορυφή</button><button class="btn ghost" id="sv">📒</button></div><p class="note" id="live"></p>`);
+ try{await camera($("#v"))}catch(e){return camError($("#cam"),e)}keepAwake();
+ $("#ph").oninput=e=>{h=+e.target.value||150;S.settings.phoneH=h;write()};
+ gravity(g=>{beta=Math.atan2(Math.hypot(g.x,g.y),g.z)/DEG;$("#live").textContent="Γωνία από την κατακόρυφο: "+nf(beta,1)+"°"});
+ $("#b1").onclick=()=>{if(beta==null)return;const below=90-beta;if(below<=0.5){toast("Στόχευσε πιο χαμηλά — στη βάση του αντικειμένου.");return}dist=h/100/Math.tan(below*DEG);$("#d1").textContent="Απόσταση "+nf(dist,2)+" m";$("#b2").disabled=false;beep()};
+ $("#b2").onclick=()=>{if(beta==null||dist==null)return;const up=beta-90;const H=h/100+dist*Math.tan(up*DEG);$("#d2").textContent="Ύψος "+nf(H,2)+" m";beep()};
+ $("#sv").onclick=()=>saveMeasure("apostasi","Απόσταση/ύψος",$("#d1").textContent+"\n"+$("#d2").textContent+"\nΎψος κινητού "+h+" εκ.")};startBtn("Άνοιγμα κάμερας",go)};
+/* ---- Πυξίδα & θέση ---- */
+TOOLFN.pyxida=function(){const go=async()=>{await motionPermission();let head=null,pos=null;
+ const ticks=[...Array(72)].map((_,i)=>{const a=i*5,L=a%30===0?14:a%10===0?9:5;return`<line x1="100" y1="10" x2="100" y2="${10+L}" stroke="currentColor" stroke-width="${a%30===0?2:1}" transform="rotate(${a} 100 100)"/>`}).join("");
+ const lbl=[["Β",0],["Α",90],["Ν",180],["Δ",270]].map(([t,a])=>`<text x="100" y="40" text-anchor="middle" font-weight="900" font-size="15" fill="${t==="Β"?"#C8412B":"currentColor"}" transform="rotate(${a} 100 100)">${t}</text>`).join("");
+ body(`<div class="compass"><svg viewBox="0 0 200 200"><g id="rose" style="transition:transform .15s linear">${ticks}${lbl}</g><path d="M100 22 L108 100 L100 92 L92 100Z" fill="#C8412B"/><path d="M100 178 L108 100 L100 108 L92 100Z" fill="#9AA4AE"/><circle cx="100" cy="100" r="5" fill="#17324D"/></svg></div>
+ <div class="big" id="hd">—</div><div class="note" style="text-align:center" id="hdn"></div>
+ <div class="card" style="margin-top:12px"><h3>📍 Θέση</h3><div id="geo" class="note">Πάτα για εντοπισμό.</div><div class="row" style="margin-top:8px"><button class="btn ghost small" id="loc">Εντοπισμός</button><button class="btn ghost small" id="shr" disabled>Στείλε τη θέση</button><button class="btn ghost small" id="sv" disabled>📒</button></div></div>`);
+ const dirs=["Β","ΒΑ","Α","ΝΑ","Ν","ΝΔ","Δ","ΒΔ"];
+ const onH=(hv,abs)=>{head=(hv+360)%360;$("#rose").style.transform=`rotate(${-head}deg)`;$("#rose").style.transformOrigin="100px 100px";$("#hd").textContent=Math.round(head)+"° "+dirs[Math.round(head/45)%8];$("#hdn").textContent=abs?"Μαγνητικός βορράς":"Σχετικός προσανατολισμός — η συσκευή δεν δίνει απόλυτο βορρά."};
+ let gotAbs=false;listen(window,"deviceorientationabsolute",e=>{if(e.alpha==null)return;gotAbs=true;onH(360-e.alpha,true)});
+ listen(window,"deviceorientation",e=>{if(e.webkitCompassHeading!=null){gotAbs=true;onH(e.webkitCompassHeading,true)}else if(!gotAbs&&e.alpha!=null&&e.absolute)onH(360-e.alpha,true)});
+ $("#loc").onclick=()=>{if(!navigator.geolocation)return toast("Η συσκευή δεν δίνει θέση.");$("#geo").textContent="Εντοπισμός…";
+  navigator.geolocation.getCurrentPosition(p=>{pos=p.coords;$("#geo").innerHTML=`<div class="kv"><span>Πλάτος</span><b>${pos.latitude.toFixed(6)}</b></div><div class="kv"><span>Μήκος</span><b>${pos.longitude.toFixed(6)}</b></div><div class="kv"><span>Ακρίβεια</span><b>± ${Math.round(pos.accuracy)} m</b></div><div class="kv"><span>Υψόμετρο</span><b>${pos.altitude!=null?Math.round(pos.altitude)+" m":"δεν δίνεται"}</b></div>`;$("#shr").disabled=false;$("#sv").disabled=false},
+  ()=>{$("#geo").textContent="Δεν δόθηκε άδεια θέσης ή δεν βρέθηκε σήμα."},{enableHighAccuracy:true,timeout:15000})};
+ const ptxt=()=>`Θέση: ${pos.latitude.toFixed(6)}, ${pos.longitude.toFixed(6)} (±${Math.round(pos.accuracy)} m)\nhttps://maps.google.com/?q=${pos.latitude.toFixed(6)},${pos.longitude.toFixed(6)}`;
+ $("#shr").onclick=()=>pos&&shareText("Η θέση μου",ptxt());$("#sv").onclick=()=>pos&&saveMeasure("pyxida","Θέση",ptxt())};startBtn("Άνοιγμα πυξίδας",go)};
+/* ---- Ηχόμετρο ---- */
+TOOLFN.ixometro=function(){const go=async()=>{let st;try{st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})}catch{return body(`<div class="warn">🎤 Δεν δόθηκε άδεια μικροφώνου. Ενεργοποίησέ την από τις άδειες του φυλλομετρητή και ξαναδοκίμασε.</div>`)}
+ onStop(()=>st.getTracks().forEach(t=>t.stop()));keepAwake();const ac=new(window.AudioContext||window.webkitAudioContext);onStop(()=>ac.close());const src=ac.createMediaStreamSource(st),an=ac.createAnalyser();an.fftSize=2048;src.connect(an);const buf=new Float32Array(an.fftSize);
+ body(`<div class="big" id="db">—</div><div class="note" style="text-align:center" id="dbt"></div><div class="meter" style="margin:10px 0"><i id="dbm" style="width:0"></i></div>
+ <div class="row"><div class="mid"><small class="note">ελάχ.</small><br><span id="mn">—</span></div><div class="mid"><small class="note">μέσο</small><br><span id="av">—</span></div><div class="mid"><small class="note">μέγ.</small><br><span id="mx">—</span></div></div>
+ <canvas class="graph" id="gr" style="margin-top:10px"></canvas><div class="row" style="margin-top:10px"><button class="btn ghost" id="rs">↺ Μηδένισε</button><button class="btn ghost" id="sv">📒 Αποθήκευση</button></div>
+ <div class="card" style="margin-top:12px"><h3>Για σύγκριση</h3><table class="tbl"><tr><td>Ήσυχο δωμάτιο</td><td>30–40 dB</td></tr><tr><td>Κουβέντα</td><td>60 dB</td></tr><tr><td>Δρόμος με κίνηση</td><td>70–80 dB</td></tr><tr><td>Δράπανο / κομπρεσέρ</td><td>85–95 dB</td></tr><tr><td>Τροχός, κομπρεσέρ αέρος, σφυρί</td><td>100–110 dB</td></tr></table><p class="note">Από 85 dB και πάνω για πολλή ώρα: ωτοασπίδες. Η μέτρηση είναι ενδεικτική.</p></div>`);
+ let mn=999,mx=0,sum=0,n=0,hist=[];const lv=[[85,"⚠ φοράς ωτοασπίδες"],[70,"δυνατός θόρυβος"],[50,"συνηθισμένος"],[0,"ήσυχα"]];
+ $("#rs").onclick=()=>{mn=999;mx=0;sum=0;n=0;hist=[]};$("#sv").onclick=()=>saveMeasure("ixometro","Ηχόμετρο",`Τώρα ${$("#db").textContent} · ελάχ. ${$("#mn").textContent} · μέσο ${$("#av").textContent} · μέγ. ${$("#mx").textContent}`);
+ let t0=0;const loop=ts=>{if(cur!=="ixometro")return;requestAnimationFrame(loop);if(ts-t0<120)return;t0=ts;an.getFloatTimeDomainData(buf);let s=0;for(const x of buf)s+=x*x;const rms=Math.sqrt(s/buf.length);let db=20*Math.log10(Math.max(rms,1e-7))+94+(S.settings.dbOffset||0);db=Math.max(20,Math.min(130,db));
+  mn=Math.min(mn,db);mx=Math.max(mx,db);sum+=db;n++;hist.push(db);hist.length>150&&hist.shift();$("#db").textContent=Math.round(db)+" dB";$("#dbm").style.width=Math.min(100,(db-20)/100*100)+"%";$("#dbt").textContent=lv.find(l=>db>=l[0])[1];$("#mn").textContent=Math.round(mn);$("#mx").textContent=Math.round(mx);$("#av").textContent=Math.round(sum/n);
+  graph($("#gr"),hist,20,120,85)};requestAnimationFrame(loop)};startBtn("🎤 Έναρξη μέτρησης",go)};
+function graph(cv,arr,lo,hi,warn){const dpr=devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;const x=cv.getContext("2d");x.scale(dpr,dpr);const y=v=>H-(v-lo)/(hi-lo)*H;
+ if(warn!=null){x.strokeStyle="#C8412B88";x.setLineDash([5,5]);x.beginPath();x.moveTo(0,y(warn));x.lineTo(W,y(warn));x.stroke();x.setLineDash([])}
+ x.strokeStyle="#F2B632";x.lineWidth=2;x.beginPath();arr.forEach((v,i)=>{const px=i/(150-1)*W;i?x.lineTo(px,y(v)):x.moveTo(px,y(v))});x.stroke()}
+/* ---- Δονήσεις ---- */
+TOOLFN.doniseis=function(){const go=async()=>{await motionPermission();keepAwake();let hist=[],pk=0;
+ body(`<div class="big" id="vb">—</div><div class="note" style="text-align:center">m/s² (χωρίς βαρύτητα)</div><canvas class="graph" id="gr" style="margin-top:10px"></canvas><div class="row" style="margin-top:10px"><div class="mid"><small class="note">κορυφή</small><br><span id="pk">—</span></div></div><div class="row" style="margin-top:10px"><button class="btn ghost" id="rs">↺ Μηδένισε</button><button class="btn ghost" id="sv">📒 Αποθήκευση</button></div>`);
+ let g=null,last=0;listen(window,"devicemotion",e=>{let m;if(e.acceleration&&e.acceleration.x!=null){const a=e.acceleration;m=Math.hypot(a.x,a.y,a.z)}else{const a=e.accelerationIncludingGravity;if(!a||a.x==null)return;g=g?{x:g.x*.9+a.x*.1,y:g.y*.9+a.y*.1,z:g.z*.9+a.z*.1}:{x:a.x,y:a.y,z:a.z};m=Math.hypot(a.x-g.x,a.y-g.y,a.z-g.z)}
+  pk=Math.max(pk,m);hist.push(m);hist.length>150&&hist.shift();const now=performance.now();if(now-last<100)return;last=now;$("#vb").textContent=nf(m,2);$("#pk").textContent=nf(pk,2);graph($("#gr"),hist,0,Math.max(2,pk*1.1))});
+ $("#rs").onclick=()=>{pk=0;hist=[]};$("#sv").onclick=()=>saveMeasure("doniseis","Δονήσεις","Κορυφή "+nf(pk,2)+" m/s²")};startBtn("Έναρξη μέτρησης",go)};
+/* ---- Μέταλλο ---- */
+TOOLFN.metallo=function(){if(!("Magnetometer"in window)){body(`<div class="warn">🧲 Αυτός ο φυλλομετρητής δεν δίνει πρόσβαση στο μαγνητόμετρο. Στο Chrome για Android ενεργοποιείται μόνο από τις πειραματικές ρυθμίσεις (chrome://flags → «Generic Sensor Extra Classes»), οπότε στα περισσότερα κινητά αυτό το εργαλείο δεν είναι διαθέσιμο.</div><div class="warn">⚡ Ποτέ μην βασίζεσαι σε κινητό για να βρεις καλώδια ρεύματος πριν τρυπήσεις. Κατέβασε τον γενικό διακόπτη και χρησιμοποίησε κανονικό ανιχνευτή τάσης.</div>`);return}
+ const go=()=>{let base=null,hist=[],m;body(`<div class="big" id="mt">—</div><div class="note" style="text-align:center">μT (μικροτέσλα) · διαφορά από το μηδέν</div><div class="meter" style="margin:10px 0"><i id="mm" style="width:0"></i></div><canvas class="graph" id="gr"></canvas><div class="row" style="margin-top:10px"><button class="btn amber" id="z">⊙ Μηδένισε εδώ</button></div><div class="warn">⚡ Βρίσκει σίδερο (καρφιά, βίδες, οπλισμό). ΔΕΝ βρίσκει με ασφάλεια καλώδια ρεύματος — πριν τρυπήσεις κατέβασε τον διακόπτη.</div>`);
+  try{const s=new Magnetometer({frequency:20});onStop(()=>s.stop());let last=0;s.addEventListener("reading",()=>{m=Math.hypot(s.x,s.y,s.z);if(base==null)base=m;const d=Math.abs(m-base);hist.push(d);hist.length>150&&hist.shift();const now=performance.now();if(now-last<100)return;last=now;$("#mt").textContent=nf(d,1);$("#mm").style.width=Math.min(100,d/80*100)+"%";graph($("#gr"),hist,0,Math.max(40,...hist));if(d>20)beep(400+d*8,40,.08)});s.addEventListener("error",()=>body(`<div class="warn">Δεν δόθηκε πρόσβαση στο μαγνητόμετρο.</div>`));s.start()}catch{body(`<div class="warn">Δεν δόθηκε πρόσβαση στο μαγνητόμετρο.</div>`)}
+  $("#z").onclick=()=>{base=m;hist=[]}};startBtn("Έναρξη",go)};
+/* ---- Φακός & μεγεθυντικός ---- */
+TOOLFN.fakos=function(){const go=async()=>{body(`<div class="cam" id="cam"><video id="v"></video><canvas class="ov" id="fr" hidden></canvas></div>
+ <div class="row" style="margin-top:10px"><button class="btn amber" id="tl">💡 Φως</button><button class="btn ghost" id="fz">❄ Πάγωμα</button></div>
+ <label class="fld" style="margin-top:10px">Ζουμ<span class="in" style="padding:6px 10px"><input type="range" id="zm" min="1" max="10" step="0.1" value="2" style="padding:0"></span></label><p class="note" id="fn"></p>`);
+ let st;try{st=await camera($("#v"))}catch(e){return camError($("#cam"),e)}keepAwake();const tr=st.getVideoTracks()[0],cap=tr.getCapabilities?tr.getCapabilities():{};let on=false,frozen=false;
+ if(!cap.torch)$("#fn").textContent="Αυτή η συσκευή ή ο φυλλομετρητής δεν επιτρέπει το φλας. Στο Chrome για Android συνήθως δουλεύει.";
+ $("#tl").onclick=async()=>{on=!on;try{await tr.applyConstraints({advanced:[{torch:on}]});$("#tl").textContent=on?"💡 Σβήσε":"💡 Φως"}catch{on=false;toast("Το φλας δεν είναι διαθέσιμο.")}};
+ const zr=$("#zm");if(cap.zoom){zr.min=cap.zoom.min;zr.max=cap.zoom.max;zr.step=cap.zoom.step||.1;zr.value=Math.min(cap.zoom.max,2)}
+ const setZ=async()=>{const z=+zr.value;if(cap.zoom){try{await tr.applyConstraints({advanced:[{zoom:z}]})}catch{}}else $("#v").style.transform=`scale(${z})`};zr.oninput=setZ;setZ();
+ $("#fz").onclick=()=>{frozen=!frozen;const c=$("#fr"),v=$("#v");if(frozen){c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext("2d");x.drawImage(v,0,0);c.style.transform=v.style.transform;c.hidden=false;$("#fz").textContent="▶ Ζωντανά"}else{c.hidden=true;$("#fz").textContent="❄ Πάγωμα"}};
+ onStop(()=>{try{tr.applyConstraints({advanced:[{torch:false}]})}catch{}})};startBtn("Άνοιγμα",go)};
+/* ---- Μετροταινία AR ---- */
+TOOLFN.ar=async function(){body(`<div class="card" id="arc"><p class="note">Έλεγχος συσκευής…</p></div>`);let ok=false;try{ok=!!(navigator.xr&&await navigator.xr.isSessionSupported("immersive-ar"))}catch{}
+ if(!ok){body(`<div class="warn">📐 Η μετροταινία με την κάμερα χρειάζεται Chrome σε κινητό Android με τις «Υπηρεσίες Google Play για επαυξημένη πραγματικότητα» (δωρεάν από το Google Play). Σε αυτή τη συσκευή δεν είναι διαθέσιμη.</div><div class="card"><h3>Εναλλακτικά</h3><p class="note">Δοκίμασε τα εργαλεία «Απόσταση & ύψος» ή «Χάρακας», ή μέτρα πάνω σε φωτογραφία με τη ΦωτοΜέτρα.</p><div class="row"><button class="btn ghost small" data-tool="apostasi">🎯 Απόσταση</button><button class="btn ghost small" data-tool="xarakas">📏 Χάρακας</button><a class="btn ghost small" href="https://aglentzakis-dot.github.io/fotometra/" target="_blank" rel="noopener" style="text-decoration:none">📐 ΦωτοΜέτρα</a></div></div>`);return}
+ body(`<div class="card" style="text-align:center"><p class="note">Θα ανοίξει η κάμερα σε πλήρη οθόνη. Κούνα αργά το κινητό μέχρι να φανεί ο κίτρινος κύκλος πάνω στην επιφάνεια.</p><button class="btn amber wide" id="go">📐 Έναρξη μέτρησης</button></div><div class="card" id="arRes" hidden></div>`);
+ $("#go").onclick=()=>arStart()};
+function m4mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o}
+async function arStart(){const ov=$("#arOverlay");let sess;try{sess=await navigator.xr.requestSession("immersive-ar",{requiredFeatures:["hit-test","local"],optionalFeatures:["dom-overlay"],domOverlay:{root:ov}})}catch(e){toast("Δεν ξεκίνησε η μέτρηση: "+(e&&e.message||"σφάλμα"));return}
+ ov.style.display="block";const cv=document.createElement("canvas"),gl=cv.getContext("webgl",{xrCompatible:true,alpha:true});await gl.makeXRCompatible();sess.updateRenderState({baseLayer:new XRWebGLLayer(sess,gl)});
+ const vs=`attribute vec3 p;uniform mat4 P,V;void main(){gl_Position=P*V*vec4(p,1.0);gl_PointSize=14.0;}`,fs=`precision mediump float;uniform vec4 c;void main(){gl_FragColor=c;}`;
+ const sh=(t,s)=>{const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o},pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,vs));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(pr);
+ const loc={p:gl.getAttribLocation(pr,"p"),P:gl.getUniformLocation(pr,"P"),V:gl.getUniformLocation(pr,"V"),c:gl.getUniformLocation(pr,"c")},buf=gl.createBuffer();
+ const ref=await sess.requestReferenceSpace("local"),vsp=await sess.requestReferenceSpace("viewer"),hts=await sess.requestHitTestSource({space:vsp});
+ let pts=[],ret=null,retM=null,segs=[];const read=$("#arRead");
+ const fmt=m=>m<1?nf(m*100,1)+" εκ.":nf(m,2)+" m";
+ const upd=()=>{segs=[];for(let i=1;i<pts.length;i++)segs.push(Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1],pts[i][2]-pts[i-1][2]));const tot=segs.reduce((a,b)=>a+b,0);
+  read.innerHTML=pts.length<2?`<big>${pts.length?"Σημείο 1":"—"}</big>${pts.length?"Πήγαινε στο τέλος και πάτα «+».":"Στόχευσε και πάτα «+» στην αρχή."}`:`<big>${fmt(segs[segs.length-1])}</big>${segs.length>1?"Σύνολο "+fmt(tot)+" · "+segs.length+" τμήματα":"Πάτα «+» για να συνεχίσεις (περίμετρος)."}`};upd();
+ $("#arAdd").onclick=()=>{if(!ret)return toast("Δεν βρέθηκε επιφάνεια ακόμα.");pts.push(ret.slice());buzz(20);upd()};$("#arUndo").onclick=()=>{pts.pop();upd()};
+ $("#arNew").onclick=()=>{if(segs.length)arKeep(segs);pts=[];upd()};$("#arClose").onclick=()=>sess.end();
+ const draw=(arr,mode,col,V,P)=>{gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.DYNAMIC_DRAW);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,0,0);gl.enableVertexAttribArray(loc.p);gl.uniformMatrix4fv(loc.P,false,P);gl.uniformMatrix4fv(loc.V,false,V);gl.uniform4fv(loc.c,col);gl.drawArrays(mode,0,arr.length/3)};
+ const onFrame=(t,fr)=>{sess.requestAnimationFrame(onFrame);const pose=fr.getViewerPose(ref);const L=sess.renderState.baseLayer;gl.bindFramebuffer(gl.FRAMEBUFFER,L.framebuffer);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!pose)return;
+  const hr=fr.getHitTestResults(hts);if(hr.length){const hp=hr[0].getPose(ref);retM=hp.transform.matrix;const p=hp.transform.position;ret=[p.x,p.y,p.z]}else{ret=null;retM=null}
+  gl.useProgram(pr);for(const v of pose.views){const vp=L.getViewport(v);gl.viewport(vp.x,vp.y,vp.width,vp.height);const P=v.projectionMatrix,V=v.transform.inverse.matrix;
+   if(retM){const c=[];for(let i=0;i<=32;i++){const a=i/32*Math.PI*2,lx=Math.cos(a)*.05,lz=Math.sin(a)*.05;c.push(retM[0]*lx+retM[8]*lz+retM[12],retM[1]*lx+retM[9]*lz+retM[13],retM[2]*lx+retM[10]*lz+retM[14])}draw(c,gl.LINE_STRIP,[.99,.82,.09,1],V,P)}
+   if(pts.length){const arr=pts.flat();if(ret)arr.push(...ret);draw(arr,gl.LINE_STRIP,[1,1,1,1],V,P);draw(pts.flat(),gl.POINTS,[.99,.82,.09,1],V,P)}}
+  if(pts.length&&ret){const l=pts[pts.length-1],d=Math.hypot(ret[0]-l[0],ret[1]-l[1],ret[2]-l[2]);read.querySelector("big").textContent=fmt(d)}};
+ sess.requestAnimationFrame(onFrame);sess.addEventListener("end",()=>{ov.style.display="none";if(segs.length)arKeep(segs)})}
+function arKeep(segs){const tot=segs.reduce((a,b)=>a+b,0),txt=segs.map((s,i)=>"Τμήμα "+(i+1)+": "+nf(s*100,1)+" εκ.").join("\n")+(segs.length>1?"\nΣύνολο: "+nf(tot*100,1)+" εκ.":"");const r=$("#arRes");if(r){r.hidden=false;r.innerHTML=`<h3>Τελευταία μέτρηση</h3><pre style="white-space:pre-wrap;font:inherit;margin:0 0 10px">${esc(txt)}</pre><div class="row"><button class="btn ghost small" id="arSv">📒 Αποθήκευση</button><button class="btn ghost small" id="arSh">↗ Αποστολή</button></div>`;$("#arSv").onclick=()=>saveMeasure("ar","Μετροταινία",txt);$("#arSh").onclick=()=>shareText("Μέτρηση",txt)}}
+/* =========================================================
+   ΠΙΝΑΚΕΣ & ΜΕΤΑΤΡΟΠΕΣ
+   ========================================================= */
+const UNITS={"Μήκος":[["mm",.001],["cm",.01],["m",1],["km",1000],["ίντσα (in)",.0254],["πόδι (ft)",.3048],["γιάρδα (yd)",.9144],["μίλι",1609.344]],
+ "Εμβαδό":[["cm²",1e-4],["m²",1],["στρέμμα",1000],["εκτάριο",1e4],["ft²",.09290304],["in²",.00064516]],
+ "Όγκος":[["ml",1e-6],["λίτρο",.001],["m³",1],["γαλόνι ΗΠΑ",.003785411784],["ft³",.028316846592]],
+ "Βάρος":[["g",.001],["kg",1],["τόνος",1000],["λίβρα (lb)",.45359237],["ουγγιά (oz)",.028349523125]],
+ "Πίεση":[["bar",1e5],["psi",6894.757],["kPa",1000],["MPa",1e6],["atm",101325],["kg/cm²",98066.5]],
+ "Ισχύς":[["W",1],["kW",1000],["ίππος (PS)",735.49875],["hp (ΗΠΑ)",745.69987],["BTU/h",.29307107]],
+ "Ροπή":[["Nm",1],["kgf·m",9.80665],["lbf·ft",1.3558179],["lbf·in",.11298483]],
+ "Θερμοκρασία":"T"};
+TOOLFN.monades=function(){let g=S.settings.unitGroup||"Μήκος";const draw=()=>{const u=UNITS[g];
+ body(`<div class="card"><div style="margin-bottom:10px">${Object.keys(UNITS).map(k=>`<button class="chip" data-g="${k}" style="${k===g?"background:var(--brand);color:#fff":""}">${k}</button>`).join("")}</div><div class="fields" id="uf">${(u==="T"?[["°C"],["°F"],["K"]]:u).map((x,i)=>`<label class="fld"><span>${x[0]}</span><span class="in"><input type="number" inputmode="decimal" step="any" data-i="${i}"></span></label>`).join("")}</div></div>`);
+ $$("[data-g]").forEach(b=>b.onclick=()=>{g=b.dataset.g;S.settings.unitGroup=g;write();draw()});
+ const ins=$$("#uf input");ins.forEach(inp=>inp.addEventListener("input",()=>{const v=parseFloat(inp.value.replace(",","."));if(!isFinite(v))return;const i=+inp.dataset.i;let base;
+  if(u==="T"){const c=i===0?v:i===1?(v-32)*5/9:v-273.15;const out=[c,c*9/5+32,c+273.15];ins.forEach((o,j)=>j!==i&&(o.value=+out[j].toFixed(3)))}
+  else{base=v*u[i][1];ins.forEach((o,j)=>j!==i&&(o.value=+(base/u[j][1]).toPrecision(7)))}}))};draw()};
+TOOLFN.intses=function(){const pipes=[["1/4″","DN8","13,5"],["3/8″","DN10","17,2"],["1/2″","DN15","21,3"],["3/4″","DN20","26,9"],["1″","DN25","33,7"],["1 1/4″","DN32","42,4"],["1 1/2″","DN40","48,3"],["2″","DN50","60,3"],["2 1/2″","DN65","76,1"],["3″","DN80","88,9"],["4″","DN100","114,3"]];
+ body(`<div class="card"><div class="fields"><label class="fld">Χιλιοστά<span class="in"><input id="mm" type="number" inputmode="decimal" step="any"><span class="u">mm</span></span></label><label class="fld">Ίντσες (π.χ. 3 5/8)<span class="in"><input id="in" type="text" inputmode="text"><span class="u">″</span></span></label></div><div class="res" id="r"></div></div>
+ <div class="card"><h3>Σπείρωμα σωλήνα σε ίντσες → εξωτερική διάμετρος</h3><table class="tbl"><tr><th>Ίντσα</th><th>Ονομαστική</th><th>Εξωτ. Ø (mm)</th></tr>${pipes.map(p=>`<tr><td><b>${p[0]}</b></td><td>${p[1]}</td><td>${p[2]}</td></tr>`).join("")}</table><p class="note">Η «ίντσα» του υδραυλικού είναι ονομαστικό μέγεθος — η πραγματική εξωτερική διάμετρος είναι μεγαλύτερη.</p></div>`);
+ const r=$("#r");$("#mm").oninput=e=>{const v=parseFloat(e.target.value.replace(",","."));if(!isFinite(v))return;const i=v/25.4;$("#in").value=toFrac(i);r.innerHTML=`<div class="kv hl"><span>Ίντσες</span><b>${nf(i,4)}″ ≈ ${toFrac(i)}″</b></div><div class="kv"><span>Πόδια</span><b>${nf(i/12,3)} ft</b></div>`};
+ $("#in").oninput=e=>{const s=e.target.value.trim().replace(",",".");let m=s.match(/^(\d+(?:\.\d+)?)?\s*(?:(\d+)\s*\/\s*(\d+))?$/);if(!m||(!m[1]&&!m[2]))return;let v=(+m[1]||0)+(m[2]?+m[2]/+m[3]:0);const mm=v*25.4;$("#mm").value=+mm.toFixed(2);r.innerHTML=`<div class="kv hl"><span>Χιλιοστά</span><b>${nf(mm,2)} mm</b></div><div class="kv"><span>Εκατοστά</span><b>${nf(mm/10,2)} cm</b></div>`}};
+TOOLFN.vides=function(){const oupa=[["5","5","3–3,5"],["6","6","3,5–4,5"],["8","8","4,5–5"],["10","10","6–8"],["12","12","8–10"],["14","14","10–12"]],
+ thr=[["M3","0,5","2,5","5,5","2,5"],["M4","0,7","3,3","7","3"],["M5","0,8","4,2","8","4"],["M6","1,0","5,0","10","5"],["M8","1,25","6,8","13","6"],["M10","1,5","8,5","16 / 17","8"],["M12","1,75","10,2","18 / 19","10"],["M14","2,0","12,0","21 / 22","12"],["M16","2,0","14,0","24","14"],["M20","2,5","17,5","30","17"]];
+ body(`<div class="card"><h3>Ούπα (πλαστικά βύσματα)</h3><table class="tbl"><tr><th>Ούπα Ø</th><th>Τρυπάνι</th><th>Βίδα Ø</th></tr>${oupa.map(o=>`<tr><td><b>${o[0]} mm</b></td><td>${o[1]} mm</td><td>${o[2]} mm</td></tr>`).join("")}</table><p class="note">Βάθος τρύπας: μήκος ούπα + 5–10 mm. Σε τούβλο με τρύπες χρησιμοποίησε ούπα για διάτρητα ή χημικό βύσμα.</p></div>
+ <div class="card"><h3>Μετρικά σπειρώματα</h3><table class="tbl"><tr><th>Σπείρωμα</th><th>Βήμα</th><th>Τρυπάνι για κολαούζο</th><th>Κλειδί</th><th>Άλεν</th></tr>${thr.map(t=>`<tr><td><b>${t[0]}</b></td><td>${t[1]}</td><td>${t[2]} mm</td><td>${t[3]}</td><td>${t[4]}</td></tr>`).join("")}</table><p class="note">Τρυπάνι για διαμπερή τρύπα (χωρίς σπείρωμα): περίπου Ø βίδας + 0,5–1 mm.</p></div>
+ <div class="card"><h3>Καλώδια σε κατοικία (συνηθισμένη πρακτική)</h3><table class="tbl"><tr><th>Γραμμή</th><th>Διατομή</th><th>Ασφάλεια</th></tr><tr><td>Φωτισμός</td><td>1,5 mm²</td><td>10 A</td></tr><tr><td>Πρίζες</td><td>2,5 mm²</td><td>16 A</td></tr><tr><td>Θερμοσίφωνας / κλιματιστικό</td><td>2,5 mm²</td><td>16–20 A</td></tr><tr><td>Κουζίνα</td><td>4–6 mm²</td><td>25–32 A</td></tr></table><p class="note">⚠️ Ενδεικτικό. Ισχύει πάντα η μελέτη και ο έλεγχος αδειούχου ηλεκτρολόγου.</p></div>`)};
+/* ---- Χρονόμετρο ---- */
+TOOLFN.xronometro=function(){keepAwake();let mode=S.settings.tmMode||"down",end=0,left=(S.settings.tmLast||20)*60e3,run=false,sw0=0,swAcc=0;
+ const fmt=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1e3),h=Math.floor(s/3600);return(h?h+":":"")+pad(Math.floor(s/60)%60)+":"+pad(s%60)};
+ const draw=()=>{body(`<div class="seg" id="tm"><button data-m="down">Αντίστροφη</button><button data-m="up">Χρονόμετρο</button></div><div class="big" id="tt" style="font-size:60px">—</div>
+ ${mode==="down"?`<div style="text-align:center;margin:6px 0">${[[5,"5′"],[10,"10′"],[15,"15′ αρμόστοκος"],[20,"20′ κόλλα"],[30,"30′"],[60,"1 ώρα"],[120,"2 ώρες χέρι μπογιάς"]].map(p=>`<button class="chip" data-p="${p[0]}">${p[1]}</button>`).join("")}</div>`:""}
+ <div class="row" style="margin-top:10px"><button class="btn amber" id="ss">▶ Έναρξη</button><button class="btn ghost" id="rr">↺ Μηδέν</button></div><p class="note" style="text-align:center">Η οθόνη μένει αναμμένη όσο είναι ανοιχτό.</p>`);
+  $$("#tm button").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));$("#tm").onclick=e=>{const b=e.target.closest("button");if(!b||run)return;mode=b.dataset.m;S.settings.tmMode=mode;write();draw()};
+  $$("[data-p]").forEach(b=>b.onclick=()=>{if(run)return;left=+b.dataset.p*60e3;S.settings.tmLast=+b.dataset.p;write();tick()});
+  $("#ss").onclick=()=>{run=!run;if(run){if(mode==="down"){end=Date.now()+left;if("Notification"in window&&Notification.permission==="default")try{Notification.requestPermission()}catch{}}else sw0=Date.now()}else{if(mode==="down")left=end-Date.now();else swAcc+=Date.now()-sw0}$("#ss").textContent=run?"⏸ Παύση":"▶ Έναρξη"};
+  $("#rr").onclick=()=>{run=false;left=(S.settings.tmLast||20)*60e3;swAcc=0;$("#ss").textContent="▶ Έναρξη";tick()};tick()};
+ const tick=()=>{const el=$("#tt");if(!el)return;if(mode==="down"){const ms=run?end-Date.now():left;el.textContent=fmt(ms);if(run&&ms<=0){run=false;left=0;$("#ss").textContent="▶ Έναρξη";done()}}else el.textContent=fmt(swAcc+(run?Date.now()-sw0:0))};
+ const done=()=>{for(let i=0;i<5;i++)setTimeout(()=>beep(1000,250,.3),i*400);buzz([300,150,300,150,300]);try{if("Notification"in window&&Notification.permission==="granted")navigator.serviceWorker.ready.then(r=>r.showNotification("Εργαλειοθήκη",{body:"Ο χρόνος τελείωσε.",icon:"icon-192.png"}))}catch{}toast("⏰ Ο χρόνος τελείωσε!")};
+ const iv=setInterval(()=>{if(cur!=="xronometro")return clearInterval(iv);tick()},250);onStop(()=>clearInterval(iv));draw()};
+/* =========================================================
+   ΛΙΣΤΑ ΥΛΙΚΩΝ & ΜΕΤΡΗΣΕΙΣ
+   ========================================================= */
+TOOLFN.lista=function(){const draw=()=>{const L=S.list;body(`<div class="card"><div class="row"><input id="ni" placeholder="Υλικό (π.χ. σιλικόνη)" style="flex:3;padding:10px;border:1.5px solid var(--line);border-radius:11px;background:var(--paper)"><input id="nq" type="number" inputmode="decimal" placeholder="Ποσ." style="flex:1;padding:10px;border:1.5px solid var(--line);border-radius:11px;background:var(--paper)"><button class="btn amber" id="na" style="flex:none">＋</button></div></div>
+ <div class="card list">${L.length?L.map(i=>`<div class="it"><input type="checkbox" data-ck="${i.id}" ${i.done?"checked":""} style="width:22px;height:22px"><div class="tx" style="${i.done?"opacity:.5;text-decoration:line-through":""}"><b>${esc(i.item)}</b><small>${nf(i.qty)} ${esc(i.unit)}${i.from?" · από "+esc(i.from):""}</small></div><button class="xbtn" data-rm="${i.id}" aria-label="Διαγραφή">✕</button></div>`).join(""):`<p class="note">Η λίστα είναι άδεια. Από κάθε υπολογισμό υλικών πάτα «🛒 Στη λίστα» ή πρόσθεσε εδώ με το χέρι.</p>`}</div>
+ ${L.length?`<div class="row"><button class="btn amber" id="sh">↗ Στείλε στο κατάστημα</button><button class="btn ghost" id="cl">Σβήσε τα τσεκαρισμένα</button></div><button class="btn ghost wide" id="ca" style="margin-top:8px">Άδειασμα λίστας</button>`:""}`);
+ $("#na").onclick=()=>{const it=$("#ni").value.trim();if(!it)return;const parts=$("#nq").value;S.list.push({id:uid(),item:it,qty:+parts||1,unit:"",from:"",done:false});changed();updCount();draw()};
+ $$("[data-ck]").forEach(c=>c.onchange=()=>{const i=S.list.find(x=>x.id===c.dataset.ck);i.done=c.checked;changed();updCount();draw()});
+ $$("[data-rm]").forEach(b=>b.onclick=()=>{S.list=S.list.filter(x=>x.id!==b.dataset.rm);changed();updCount();draw()});
+ if(L.length){$("#sh").onclick=()=>shareText("Λίστα υλικών","Λίστα υλικών:\n"+S.list.filter(i=>!i.done).map(i=>"• "+i.item+" — "+nf(i.qty)+" "+i.unit).join("\n"));$("#cl").onclick=()=>{S.list=S.list.filter(i=>!i.done);changed();updCount();draw()};$("#ca").onclick=()=>{if(confirm("Να αδειάσει όλη η λίστα;")){S.list=[];changed();updCount();draw()}}}};draw()};
+TOOLFN.saved=function(){const draw=()=>{const L=S.saved;body(L.length?`<div class="card list">${L.map(s=>`<div class="it"><div class="tx"><b>${esc(s.title)}</b><small>${new Date(s.at).toLocaleString("el-GR",{dateStyle:"short",timeStyle:"short"})} · ${esc((ALL[s.tool]||{t:""}).t)}</small><pre style="white-space:pre-wrap;font:inherit;font-size:13px;margin:6px 0 0">${esc(s.text)}</pre></div><div style="display:flex;flex-direction:column"><button class="xbtn" data-sh="${s.id}" aria-label="Αποστολή">↗</button><button class="xbtn" data-rm="${s.id}" aria-label="Διαγραφή">✕</button></div></div>`).join("")}</div>`:`<div class="card"><p class="note">Δεν υπάρχουν αποθηκευμένες μετρήσεις. Πάτα «📒» σε οποιοδήποτε εργαλείο για να κρατήσεις μια μέτρηση με όνομα δουλειάς.</p></div>`);
+ $$("[data-sh]").forEach(b=>b.onclick=()=>{const s=S.saved.find(x=>x.id===b.dataset.sh);shareText(s.title,s.title+"\n"+s.text)});
+ $$("[data-rm]").forEach(b=>b.onclick=()=>{if(!confirm("Να σβηστεί η μέτρηση;"))return;S.saved=S.saved.filter(x=>x.id!==b.dataset.rm);changed();draw()})};draw()};
+/* =========================================================
+   ΑΝΤΙΓΡΑΦΑ ΑΣΦΑΛΕΙΑΣ (κοινή λογική GlenApps)
+   ========================================================= */
+const backupPayload=()=>JSON.stringify({app:APP_ID,version:APP_VERSION,at:new Date().toISOString(),data:{settings:Object.assign({},S.settings,{gdrive:undefined}),calc:S.calc,saved:S.saved,list:S.list}});
+function restoreFrom(txt){let o;try{o=JSON.parse(txt)}catch{return toast("Το αρχείο δεν διαβάστηκε.")}if(!o||o.app!==APP_ID||!o.data)return toast("Αυτό δεν είναι αντίγραφο της Εργαλειοθήκης.");
+ if(!confirm("Να αντικατασταθούν τα τωρινά στοιχεία με το αντίγραφο της "+new Date(o.at).toLocaleString("el-GR")+";"))return;const gd=S.settings.gdrive;S.settings=Object.assign(S.settings,o.data.settings||{});S.settings.gdrive=gd;S.calc=o.data.calc||{};S.saved=o.data.saved||[];S.list=o.data.list||[];write();updCount();closeSheet();toast("✓ Έγινε επαναφορά.");home()}
+function fsIdb(){return new Promise((r,j)=>{const q=indexedDB.open(FS_DB,1);q.onupgradeneeded=()=>{const d=q.result;d.objectStoreNames.contains(FS_STORE)||d.createObjectStore(FS_STORE)};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+async function fsIdbDo(m,f){try{const d=await fsIdb();return await new Promise((r,j)=>{const t=d.transaction(FS_STORE,m),q=f(t.objectStore(FS_STORE));q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}catch{return null}}
+const fsOK=()=>typeof window.showDirectoryPicker==="function"&&window.isSecureContext;
+async function fsPerm(h,ask){try{let p=await h.queryPermission({mode:"readwrite"});if(p==="granted")return true;if(!ask)return false;p=await h.requestPermission({mode:"readwrite"});return p==="granted"}catch{return false}}
+async function fsRoot(ask){if(!fsOK())return null;let h=await fsIdbDo("readonly",s=>s.get(FS_KEY));if(h&&await fsPerm(h,ask))return h;if(ask!==true)return null;
+ try{h=await window.showDirectoryPicker({id:"ergaleiothiki",mode:"readwrite",startIn:"downloads"})}catch{return null}if(!await fsPerm(h,true))return null;await fsIdbDo("readwrite",s=>s.put(h,FS_KEY));return h}
+async function fsAppDir(ask){const r=await fsRoot(ask);if(!r)return null;const n=r.name.toLowerCase();if(/^(εργαλειοθηκη|εργαλειοθήκη|ergaleiothiki)$/.test(n))return r;
+ if(/^glenapps$/.test(n))return r.getDirectoryHandle(FS_SUB,{create:true});const g=await r.getDirectoryHandle("GlenApps",{create:true});return g.getDirectoryHandle(FS_SUB,{create:true})}
+async function fsBackup(ask){try{const d=await fsAppDir(ask);if(!d)return false;const fh=await d.getFileHandle(BK_PREFIX+"-"+today()+".json",{create:true}),w=await fh.createWritable();await w.write(new Blob([backupPayload()],{type:"application/json"}));await w.close();
+ const all=[];for await(const[n,h]of d.entries())if(h.kind==="file"&&n.startsWith(BK_PREFIX+"-"))all.push(n);all.sort().reverse().slice(10).forEach(n=>d.removeEntry(n).catch(()=>{}));S.meta.fsLast=Date.now();write();return true}catch{return false}}
+async function fsListBk(){try{const d=await fsAppDir(true);if(!d)return[];const a=[];for await(const[n,h]of d.entries())if(h.kind==="file"&&n.startsWith(BK_PREFIX+"-")){const f=await h.getFile();a.push({name:n,at:f.lastModified,h})}return a.sort((x,y)=>y.name.localeCompare(x.name)).slice(0,10)}catch{return[]}}
+function downloadBackup(){const b=new Blob([backupPayload()],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=BK_PREFIX+"-"+today()+".json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);S.meta.dlLast=Date.now();write()}
+let bkT=null;function bkOnChange(){clearTimeout(bkT);bkT=setTimeout(async()=>{if(await fsRoot(false))await fsBackup(false)},2e4);try{window.GlenDrive&&GlenDrive.changed()}catch{}}
+function gdInit(){try{window.GlenDrive&&GlenDrive.init({app:APP_ID,folder:FS_SUB,prefix:BK_PREFIX,payload:backupPayload,t:(s,v)=>T(s,v),toast,store:{get:()=>S.settings.gdrive||{},set:v=>{S.settings.gdrive=v;write()}},onState:()=>{$("#gdBox")&&gdPaint()}})}catch{}}
+function gdPaint(){const b=$("#gdBox");if(!b||!window.GlenDrive)return;const s=GlenDrive.state();
+ b.innerHTML=s.on?`<p class="note">✓ Συνδεδεμένο${s.email?" με "+esc(s.email):""}. Ανεβαίνει μόνο του μετά από κάθε αλλαγή.${s.last?"<br>Τελευταίο: "+new Date(s.last).toLocaleString("el-GR"):""}${s.err?"<br>⚠ "+esc(s.err):""}</p>${s.needTap?`<div class="warn">Πάτα «Ανέβασε τώρα» για να ξαναδοθεί πρόσβαση.</div>`:""}<div class="row"><button class="btn small" id="gdUp">☁️ Ανέβασε τώρα</button><button class="btn ghost small" id="gdRe">⤓ Επαναφορά</button>${s.folderUrl?`<a class="btn ghost small" style="text-decoration:none" href="${s.folderUrl}" target="_blank" rel="noopener">📂 Φάκελος</a>`:""}<button class="btn ghost small" id="gdOff">Αποσύνδεση</button></div>`
+ :`<p class="note">Με το Google Drive τα στοιχεία σου είναι ασφαλή ακόμα κι αν χαλάσει ή χαθεί το κινητό. Μπαίνουν στον φάκελο «GlenApps › Εργαλειοθήκη» του δικού σου Drive.</p><button class="btn amber wide" id="gdOn">☁️ Σύνδεση με Google Drive</button>`;
+ const on=$("#gdOn");on&&(on.onclick=async()=>{try{await GlenDrive.connect();toast("✓ Συνδέθηκε και ανέβηκε το πρώτο αντίγραφο.");gdPaint()}catch{toast("Δεν ολοκληρώθηκε η σύνδεση.")}});
+ const up=$("#gdUp");up&&(up.onclick=async()=>{try{await GlenDrive.uploadNow();toast("✓ Ανέβηκε στο Google Drive.");gdPaint()}catch{toast("Δεν ανέβηκε. Έλεγξε τη σύνδεση στο διαδίκτυο.")}});
+ const off=$("#gdOff");off&&(off.onclick=()=>{GlenDrive.disconnect();gdPaint()});
+ const re=$("#gdRe");re&&(re.onclick=async()=>{try{const l=(await GlenDrive.list()).slice(0,10);pickRestore(l.map((f,i)=>({name:f.name,at:Date.parse(f.modifiedTime),get:()=>GlenDrive.download(f.id)})))}catch{toast("Δεν φορτώθηκαν τα αντίγραφα.")}})}
+function pickRestore(arr){if(!arr.length)return toast("Δεν βρέθηκαν αντίγραφα.");openSheet("Επαναφορά αντιγράφου",`<div class="list">${arr.map((f,i)=>`<div class="it"><div class="tx"><b>${esc(f.name)}${i===0?' <span class="chip" style="padding:1px 8px">νεότερο</span>':""}</b><small>${new Date(f.at).toLocaleString("el-GR")}</small></div><button class="btn small" data-i="${i}">Επαναφορά</button></div>`).join("")}</div>`,b=>{b.querySelectorAll("[data-i]").forEach(x=>x.onclick=async()=>{try{restoreFrom(await arr[+x.dataset.i].get())}catch{toast("Δεν διαβάστηκε.")}})})}
+/* =========================================================
+   ΡΥΘΜΙΣΕΙΣ
+   ========================================================= */
+async function settings(){stopAll();view="settings";cur="settings";setNav("settings");const st=S.settings;const fsc=!!(await fsRoot(false));
+ $("#main").innerHTML=`<div class="toolhead"><button class="back" data-act="home" aria-label="Πίσω">←</button><h2>⚙️ Ρυθμίσεις</h2></div>
+ <div class="card"><h3>☁️ Αντίγραφα ασφαλείας</h3><div id="gdBox"></div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:12px 0"><b>📁 Φάκελος στο κινητό</b><p class="note">${fsOK()?(fsc?"✓ Συνδεδεμένος — μπαίνει αντίγραφο μόνο του μετά από αλλαγές (φάκελος «GlenApps › Εργαλειοθήκη», κρατά τα 10 τελευταία).":"Για όσους δεν έχουν Google Drive: διάλεξε (ή φτιάξε) τον φάκελο «GlenApps» στις Λήψεις."):"Ο φυλλομετρητής δεν επιτρέπει φάκελο — χρησιμοποίησε «Αποθήκευση σε αρχείο»."}</p>
+  <div class="row">${fsOK()?`<button class="btn ghost small" id="fsGo">${fsc?"Αντίγραφο τώρα":"Διάλεξε φάκελο"}</button><button class="btn ghost small" id="fsRe">⤓ Επαναφορά</button>`:""}<button class="btn ghost small" id="dl">⬇ Αποθήκευση σε αρχείο</button><label class="btn ghost small">⤒ Από αρχείο<input type="file" id="ul" accept=".json,application/json" hidden></label></div></div>
+ <div class="card"><h3>Ρυθμίσεις εργαλείων</h3>
+  <div class="kv"><span>Ήχος (μπιπ)</span><b><input type="checkbox" id="sBeep" ${st.beep?"checked":""}></b></div>
+  <div class="kv"><span>Δόνηση</span><b><input type="checkbox" id="sVib" ${st.vib?"checked":""}></b></div>
+  <div class="kv"><span>Εμφάνιση</span><b><select id="sTh" style="border:1px solid var(--line);border-radius:8px;padding:4px;background:var(--paper)"><option value="auto">Αυτόματα</option><option value="light">Φωτεινή</option><option value="dark">Σκοτεινή</option></select></b></div>
+  <div class="kv"><span>Διόρθωση ηχόμετρου</span><b><input type="number" id="sDb" value="${st.dbOffset||0}" style="width:70px;border:1px solid var(--line);border-radius:8px;padding:4px;background:var(--paper)"> dB</b></div>
+  <div class="kv"><span>Βαθμονόμηση χάρακα</span><b><button class="btn ghost small" data-tool="xarakas" id="sCal">${st.pxPerMm?"Έγινε ✓":"Κάν' την"}</button></b></div>
+  <div class="kv"><span>Μηδέν αλφαδιού</span><b><button class="btn ghost small" id="sLz">Επαναφορά</button></b></div></div>
+ <div class="card"><h3>🧩 Οι εφαρμογές μας</h3><div id="efmPage"><p class="note">Φόρτωση…</p></div></div>
+ <div class="card"><h3>ℹ️ Σχετικά</h3><div class="kv"><span>Έκδοση</span><b>${APP_VERSION} · ${APP_BUILD}</b></div><div class="row" style="margin-top:8px"><button class="btn ghost small" id="upd">🔄 Έλεγχος αναβάθμισης</button><button class="btn ghost small" id="terms">Όροι & απόρρητο</button></div>
+  <p class="note">© 2026 ${COPY_OWNER} · GlenApps. Με την επιφύλαξη παντός δικαιώματος.</p></div>`;
+ gdPaint();$("#sTh").value=st.theme||"auto";
+ $("#sBeep").onchange=e=>{st.beep=e.target.checked;write()};$("#sVib").onchange=e=>{st.vib=e.target.checked;write()};$("#sTh").onchange=e=>{st.theme=e.target.value;write();applyTheme()};
+ $("#sDb").oninput=e=>{st.dbOffset=+e.target.value||0;write()};$("#sLz").onclick=()=>{st.levelZero={x:0,y:0,r:0};write();toast("✓ Έγινε επαναφορά.")};
+ $("#sCal").onclick=e=>{e.stopPropagation();openTool("xarakas");calibRuler()};
+ const fg=$("#fsGo");fg&&(fg.onclick=async()=>{toast(await fsBackup(true)?"✓ Μπήκε αντίγραφο στον φάκελο.":"Δεν διαλέχτηκε φάκελος.");settings()});
+ const fr=$("#fsRe");fr&&(fr.onclick=async()=>{const l=await fsListBk();pickRestore(l.map(f=>({name:f.name,at:f.at,get:async()=>(await f.h.getFile()).text()})))});
+ $("#dl").onclick=downloadBackup;$("#ul").onchange=async e=>{const f=e.target.files[0];f&&restoreFrom(await f.text())};
+ $("#upd").onclick=()=>checkUpdate(false);$("#terms").onclick=terms;
+ try{window.EfarmogesMas?EfarmogesMas.page($("#efmPage"),{skip:[APP_ID]}):$("#efmPage").innerHTML=`<p class="note">Η λίστα δεν φορτώθηκε.</p>`}catch{}}
+function terms(){openSheet("Όροι χρήσης & απόρρητο",`<p><b>Ενδεικτικές μετρήσεις.</b> Τα εργαλεία χρησιμοποιούν τους αισθητήρες του κινητού και δίνουν ενδεικτικά αποτελέσματα· δεν είναι πιστοποιημένα όργανα μέτρησης. Οι υπολογισμοί υλικών είναι εκτιμήσεις — έλεγχε πάντα τις οδηγίες του κατασκευαστή.</p>
+ <p><b>Ηλεκτρολογικά και στατικά.</b> Οι ηλεκτρολογικοί υπολογισμοί και οι αναλογίες μπετόν δεν αντικαθιστούν μελέτη μηχανικού ή αδειούχου ηλεκτρολόγου. Ο ανιχνευτής μετάλλου δεν εντοπίζει με ασφάλεια καλώδια ρεύματος.</p>
+ <p><b>Απόρρητο.</b> Κάμερα, μικρόφωνο, θέση και αισθητήρες χρησιμοποιούνται μόνο τη στιγμή που ανοίγεις το αντίστοιχο εργαλείο και μόνο μέσα στο κινητό σου — τίποτα δεν στέλνεται πουθενά. Τα στοιχεία σου μένουν στο κινητό και, αν το επιλέξεις, στο δικό σου Google Drive.</p>
+ <p><b>Ευθύνη.</b> Η εφαρμογή παρέχεται «ως έχει». Ο δημιουργός δεν ευθύνεται για ζημιές από λανθασμένη χρήση ή από ανακρίβεια μετρήσεων.</p><p class="note">© 2026 ${COPY_OWNER} · GlenApps</p>`)}
+/* =========================================================
+   ΑΝΑΒΑΘΜΙΣΗ / ΕΓΚΑΤΑΣΤΑΣΗ
+   ========================================================= */
+const localFile=()=>location.protocol==="file:";let lastCheck=0,newSW=null;
+async function checkUpdate(quiet){if(localFile()){quiet||toast("Τρέχει ως αρχείο — ανέβασέ το στη σελίδα για αναβαθμίσεις.");return}if(quiet){if(Date.now()-lastCheck<6e4)return;lastCheck=Date.now()}quiet||toast("Έλεγχος για νεότερη έκδοση…");
+ try{const t=await(await fetch(location.pathname+"?probe="+Date.now(),{cache:"no-store"})).text(),m=t.match(/<meta name="app-version" content="([^"]+)"/);if(m&&m[1]!==APP_VERSION){showUpdateBar(m[1]);return}quiet||toast("Έχεις την τελευταία έκδοση ("+APP_VERSION+").")}catch{quiet||toast("Ο έλεγχος χρειάζεται σύνδεση στο διαδίκτυο.")}}
+function showUpdateBar(v){if($("#updBar"))return;const d=document.createElement("div");d.className="updbar";d.id="updBar";d.innerHTML=`<span>${v?"Βρέθηκε η έκδοση "+esc(v)+".":"Υπάρχει νεότερη έκδοση."}</span><button class="btn amber small" id="updGo">Ανανέωση τώρα</button>`;document.body.appendChild(d);$("#updGo").onclick=hardReload}
+async function hardReload(){toast("Φέρνω τη νεότερη έκδοση…");try{newSW&&newSW.postMessage({type:"skipWaiting"})}catch{}try{const k=await caches.keys();await Promise.all(k.map(n=>caches.delete(n)))}catch{}try{const r=await navigator.serviceWorker.getRegistration();r&&await r.unregister()}catch{}setTimeout(()=>location.replace(location.origin+location.pathname+"?v="+Date.now()),300)}
+async function initSW(){if(!("serviceWorker"in navigator)||localFile()||!window.isSecureContext)return;try{let r=await navigator.serviceWorker.getRegistration();r||(r=await navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}));r.addEventListener("updatefound",()=>{const w=r.installing;w&&w.addEventListener("statechange",()=>{w.state==="installed"&&navigator.serviceWorker.controller&&(newSW=w,showUpdateBar())})});try{r.update()}catch{}}catch{}}
+document.addEventListener("visibilitychange",()=>{document.visibilityState==="visible"&&checkUpdate(true)});
+let instEv=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();instEv=e;if(S.meta.instNo&&Date.now()-S.meta.instNo<7*864e5)return;if($("#instBar"))return;const d=document.createElement("div");d.className="instbar";d.id="instBar";d.innerHTML=`<span>📲 Βάλε την Εργαλειοθήκη στην αρχική οθόνη — ανοίγει και χωρίς ίντερνετ.</span><button class="btn amber small" id="instGo">Εγκατάσταση</button><button class="xbtn" id="instX" style="color:#fff">✕</button>`;document.body.appendChild(d);
+ $("#instGo").onclick=async()=>{d.remove();try{instEv.prompt();await instEv.userChoice}catch{}};$("#instX").onclick=()=>{d.remove();S.meta.instNo=Date.now();write()}});
+/* =========================================================
+   ΕΚΚΙΝΗΣΗ
+   ========================================================= */
+document.addEventListener("click",e=>{const t=e.target.closest("[data-tool]");if(t){e.preventDefault();openTool(t.dataset.tool);return}
+ const n=e.target.closest("[data-nav]");if(n){const v=n.dataset.nav;v==="home"?(history.pushState(null,"",location.pathname),home()):v==="settings"?settings():openTool(v);return}
+ const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act;if(act==="home"){history.length>1&&history.state?history.back():home()}else if(act==="settings")settings();else if(act==="help"){const h=(CALCS[cur]&&CALCS[cur].help)||HELP[cur];h&&openSheet("Πώς δουλεύει",`<p>${esc(h)}</p>`)}});
+updCount();gdInit();
+try{window.EfarmogesMas&&EfarmogesMas.init({app:APP_ID,isPro:()=>false,lang:()=>"el",t:(s,v)=>T(s,v),canShow:()=>(S.meta.opens||0)>2,onChange:()=>{view==="home"&&home()}})}catch{}
+S.meta.opens=(S.meta.opens||0)+1;write();
+{const t=new URLSearchParams(location.search).get("t");t?openTool(t,false):home()}
+initSW();setTimeout(()=>checkUpdate(true),4000);
+</script>
+</body>
+</html>
