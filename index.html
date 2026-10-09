@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.0.1">
+<meta name="app-version" content="1.0.2">
 <meta name="theme-color" content="#17324D">
 <meta name="description" content="Εργαλειοθήκη για μάστορες: αλφάδι, χάρακας, μετροταινία, πυξίδα, ηχόμετρο, φακός και υπολογισμοί υλικών.">
 <title>Εργαλειοθήκη</title>
@@ -20,7 +20,7 @@
 :root{--brand:#17324D;--onbrand:#fff;--accent:#F2B632;--accent2:#FDD117;--onaccent:#17324D;--paper:#EDF1F2;--card:#fff;--ink:#17324D;--muted:#5E7185;--line:#D6DEE3;--red:#C8412B;--green:#2E7D5B;--blue:#2468B5;--silver:#C9D0D7}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#0F1B27;--card:#172636;--ink:#E8EEF3;--muted:#9AABBC;--line:#2A3D50}}
 :root[data-theme=dark]{--paper:#0F1B27;--card:#172636;--ink:#E8EEF3;--muted:#9AABBC;--line:#2A3D50}
-*{box-sizing:border-box}[hidden]{display:none!important}.row>input{min-width:0}html,body{margin:0}
+*{box-sizing:border-box}[hidden]{display:none!important}.row>input,.row>.fld{min-width:0}html,body{margin:0}
 body{font-family:system-ui,Segoe UI,Roboto,Noto Sans,Arial,sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.4;-webkit-tap-highlight-color:transparent;padding-bottom:calc(70px + env(safe-area-inset-bottom))}
 button{font:inherit;cursor:pointer;color:inherit}a{color:inherit}input,select,textarea{font:inherit;color:var(--ink)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -150,7 +150,7 @@ canvas.graph{width:100%;height:150px;background:var(--paper);border-radius:12px;
   © 2026 Ανδρέας Μ. Γλεντζάκης (Andreas M. Glentzakis). Με την επιφύλαξη παντός δικαιώματος. All rights reserved.
 */
 "use strict";
-const APP_VERSION="1.0.1",APP_BUILD="2026-10-09",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
+const APP_VERSION="1.0.2",APP_BUILD="2026-10-09",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
 APP_URL="https://aglentzakis-dot.github.io/ergaleiothiki/",FS_DB="shared-backups",FS_STORE="handles",FS_KEY="ergaleiothiki-root",FS_SUB="Εργαλειοθήκη",BK_PREFIX="ergaleiothiki-antigrafo";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const T=(s,v)=>{if(v)for(const k in v)s=s.split("{"+k+"}").join(v[k]);return s};
@@ -480,7 +480,7 @@ TOOLFN.fakos=function(){const go=async()=>{body(`<div class="cam" id="cam"><vide
 /* ---- Μετροταινία AR ---- */
 TOOLFN.ar=async function(){body(`<div class="card" id="arc"><p class="note">Έλεγχος συσκευής…</p></div>`);let ok=false;try{ok=!!(navigator.xr&&await navigator.xr.isSessionSupported("immersive-ar"))}catch{}
  if(!ok){body(`<div class="warn">📐 Η μετροταινία με την κάμερα χρειάζεται Chrome σε κινητό Android με τις «Υπηρεσίες Google Play για επαυξημένη πραγματικότητα» (δωρεάν από το Google Play). Σε αυτή τη συσκευή δεν είναι διαθέσιμη.</div><div class="card"><h3>Εναλλακτικά</h3><p class="note">Δοκίμασε τα εργαλεία «Απόσταση & ύψος» ή «Χάρακας», ή μέτρα πάνω σε φωτογραφία με τη ΦωτοΜέτρα.</p><div class="row"><button class="btn ghost small" data-tool="apostasi">🎯 Απόσταση</button><button class="btn ghost small" data-tool="xarakas">📏 Χάρακας</button><a class="btn ghost small" href="https://aglentzakis-dot.github.io/fotometra/" target="_blank" rel="noopener" style="text-decoration:none">📐 ΦωτοΜέτρα</a></div></div>`);return}
- body(`<div class="card" style="text-align:center"><p class="note">Θα ανοίξει η κάμερα σε πλήρη οθόνη. Κούνα αργά το κινητό μέχρι να φανεί ο κίτρινος κύκλος.<br><b>Μήκος:</b> ＋ στην αρχή, ＋ στο τέλος — έτοιμο. <b>Σχήμα:</b> ＋ σε κάθε γωνία και «Κλείσιμο» για εμβαδό. Πάτα «✓ Τέλος» για να δεις όλες τις μετρήσεις.</p><button class="btn amber wide" id="go">📐 Έναρξη μέτρησης</button></div><div class="card" id="arRes" hidden></div>`);
+ body(`<div class="card" style="text-align:center"><p class="note">Θα ανοίξει η κάμερα σε πλήρη οθόνη. Κούνα αργά το κινητό μέχρι να φανεί ο κίτρινος κύκλος.<br><b>Μήκος:</b> ＋ στην αρχή, ＋ στο τέλος — έτοιμο. <b>Σχήμα:</b> ＋ σε κάθε γωνία και «Κλείσιμο» για εμβαδό. Πάτα «✓ Τέλος» για να δεις όλες τις μετρήσεις.<br><b>Για ακρίβεια:</b> σάρωσε πρώτα την επιφάνεια 3–5 δευτερόλεπτα, μέτρα από ψηλά (μισό με ένα μέτρο), με το κινητό σχεδόν παράλληλο στην επιφάνεια και καλό φωτισμό.</p><button class="btn amber wide" id="go">📐 Έναρξη μέτρησης</button></div><div class="card" id="arRes" hidden></div>`);
  $("#go").onclick=()=>arStart()};
 function m4mul(a,b){const o=new Float32Array(16);for(let i=0;i<4;i++)for(let j=0;j<4;j++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+j]*b[i*4+k];o[i*4+j]=s}return o}
 async function arStart(){const ov=$("#arOverlay");let sess;try{sess=await navigator.xr.requestSession("immersive-ar",{requiredFeatures:["hit-test","local"],optionalFeatures:["dom-overlay"],domOverlay:{root:ov}})}catch(e){toast("Δεν ξεκίνησε η μέτρηση: "+(e&&e.message||"σφάλμα"));return}
@@ -490,36 +490,42 @@ async function arStart(){const ov=$("#arOverlay");let sess;try{sess=await naviga
  const loc={p:gl.getAttribLocation(pr,"p"),P:gl.getUniformLocation(pr,"P"),V:gl.getUniformLocation(pr,"V"),c:gl.getUniformLocation(pr,"c")},buf=gl.createBuffer();
  const ref=await sess.requestReferenceSpace("local"),vsp=await sess.requestReferenceSpace("viewer"),hts=await sess.requestHitTestSource({space:vsp});
  let mode=S.settings.arMode||"len",pts=[],ret=null,retM=null,done=[],res=[],lastMsg="";const read=$("#arRead");
- const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
+ const K=()=>S.settings.arScale||1,rawd=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),dist=(a,b)=>rawd(a,b)*K();let firstHit=0,lostAt=0;
  const fmt=m=>m<1?nf(m*100,1)+" εκ.":nf(m,2)+" m",fa=a=>a<1?nf(a*1e4,0)+" εκ²":nf(a,2)+" m²";
- const area=P=>{let nx=0,ny=0,nz=0;for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];nx+=(a[1]-b[1])*(a[2]+b[2]);ny+=(a[2]-b[2])*(a[0]+b[0]);nz+=(a[0]-b[0])*(a[1]+b[1])}return Math.hypot(nx,ny,nz)/2};
+ const area0=P=>{let nx=0,ny=0,nz=0;for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];nx+=(a[1]-b[1])*(a[2]+b[2]);ny+=(a[2]-b[2])*(a[0]+b[0]);nz+=(a[0]-b[0])*(a[1]+b[1])}return Math.hypot(nx,ny,nz)/2},area=P=>area0(P)*K()*K();
  const paintMode=()=>{$$("#arMode button").forEach(b=>b.classList.toggle("on",b.dataset.m===mode));$("#arCloseWrap").hidden=!(mode==="shape"&&pts.length>=3)};
  const hist=()=>{$("#arHist").innerHTML=res.slice(-4).map((r,i)=>`<span>${res.length-Math.min(4,res.length)+i+1}) ${r.type==="len"?fmt(r.v):fa(r.area)+" · περ. "+fmt(r.per)}</span>`).join("")};
  const upd=live=>{paintMode();let step,big,msg;
   if(mode==="len"){if(!pts.length){step="Βήμα 1 από 2";big=lastMsg||"—";msg="Βάλε τον κίτρινο κύκλο στην αρχή και πάτα ＋"}else{step="Βήμα 2 από 2";big=live!=null?fmt(live):"…";msg="Πήγαινε τον κύκλο στο τέλος και πάτα ＋"}}
   else{const per=pts.slice(1).reduce((s,p,i)=>s+dist(p,pts[i]),0);step=pts.length?"Γωνία "+pts.length:"Σχήμα";big=pts.length<2?(live!=null?fmt(live):lastMsg||"—"):(live!=null?fmt(live):"…");
    msg=!pts.length?"Πάτα ＋ σε κάθε γωνία (π.χ. 4 γωνίες πλακακιού)":pts.length<3?"Πάτα ＋ στην επόμενη γωνία":"Επόμενη γωνία με ＋ ή «Κλείσιμο» για εμβαδό · περίμετρος ως τώρα "+fmt(per)}
-  read.innerHTML=`<span class="step">${step}</span><big>${big}</big>${msg}`};
+  const warm=performance.now()-firstHit;if(!firstHit||!ret&&!pts.length){step="Σάρωση";big="…";msg="Κούνα αργά το κινητό πάνω από την επιφάνεια, από ύψος μισό με ένα μέτρο."}else if(warm<3000){step="Σάρωση "+Math.ceil((3000-warm)/1000);big="…";msg="Κράτα το κινητό σταθερό λίγο ακόμα…"}
+  read.innerHTML=`<span class="step">${step}</span><big>${big}</big>${msg}`+(K()!==1?`<div style="font-size:12px;opacity:.8;margin-top:4px">Διόρθωση κλίμακας ×${nf(K(),3)}</div>`:"")};
  upd();hist();
  $("#arMode").onclick=e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.m;S.settings.arMode=mode;write();pts=[];lastMsg="";upd()};
- $("#arAdd").onclick=()=>{if(!ret)return toast("Δεν βρέθηκε επιφάνεια — κούνα λίγο το κινητό.");pts.push(ret.slice());buzz(25);beep(1100,50);
-  if(mode==="len"&&pts.length===2){const d=dist(pts[0],pts[1]);res.push({type:"len",v:d});done.push(pts);pts=[];lastMsg="✓ "+fmt(d);hist();buzz(60)}upd()};
+ $("#arAdd").onclick=()=>{if(!ret)return toast("Δεν βρέθηκε επιφάνεια — κούνα λίγο το κινητό.");if(performance.now()-firstHit<3000)return toast("Περίμενε λίγο — σαρώνει ακόμα την επιφάνεια.");pts.push(ret.slice());buzz(25);beep(1100,50);
+  if(mode==="len"&&pts.length===2){const d=dist(pts[0],pts[1]);res.push({type:"len",v:d,raw:rawd(pts[0],pts[1])});done.push(pts);pts=[];lastMsg="✓ "+fmt(d);hist();buzz(60)}upd()};
  $("#arShape").onclick=()=>{if(pts.length<3)return;const per=pts.reduce((s,p,i)=>s+dist(p,pts[(i+1)%pts.length]),0),A=area(pts),sides=pts.map((p,i)=>dist(p,pts[(i+1)%pts.length]));res.push({type:"shape",per,area:A,sides});done.push([...pts,pts[0]]);pts=[];lastMsg="✓ "+fa(A);hist();buzz(60);upd()};
  $("#arUndo").onclick=()=>{if(pts.length)pts.pop();else if(res.length){res.pop();done.pop();lastMsg="";hist()}upd()};
  $("#arClose").onclick=()=>sess.end();
  const draw=(arr,m,col,V,P)=>{gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.DYNAMIC_DRAW);gl.vertexAttribPointer(loc.p,3,gl.FLOAT,false,0,0);gl.enableVertexAttribArray(loc.p);gl.uniformMatrix4fv(loc.P,false,P);gl.uniformMatrix4fv(loc.V,false,V);gl.uniform4fv(loc.c,col);gl.drawArrays(m,0,arr.length/3)};
  let lastUpd=0;
  const onFrame=(t,fr)=>{sess.requestAnimationFrame(onFrame);const pose=fr.getViewerPose(ref);const L=sess.renderState.baseLayer;gl.bindFramebuffer(gl.FRAMEBUFFER,L.framebuffer);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!pose)return;
-  const hr=fr.getHitTestResults(hts);if(hr.length){const hp=hr[0].getPose(ref);retM=hp.transform.matrix;const p=hp.transform.position;ret=[p.x,p.y,p.z]}else{ret=null;retM=null}
+  const hr=fr.getHitTestResults(hts);if(hr.length){const hp=hr[0].getPose(ref);retM=hp.transform.matrix;const p=hp.transform.position;ret=[p.x,p.y,p.z];if(!firstHit||(lostAt&&t-lostAt>1500))firstHit=performance.now();lostAt=0}else{ret=null;retM=null;lostAt=lostAt||t}
   gl.useProgram(pr);for(const v of pose.views){const vp=L.getViewport(v);gl.viewport(vp.x,vp.y,vp.width,vp.height);const P=v.projectionMatrix,V=v.transform.inverse.matrix;
    for(const d of done){draw(d.flat(),gl.LINE_STRIP,[.35,.89,.48,1],V,P);draw(d.flat(),gl.POINTS,[.35,.89,.48,1],V,P)}
    if(retM){const c=[];for(let i=0;i<=32;i++){const a=i/32*Math.PI*2,lx=Math.cos(a)*.04,lz=Math.sin(a)*.04;c.push(retM[0]*lx+retM[8]*lz+retM[12],retM[1]*lx+retM[9]*lz+retM[13],retM[2]*lx+retM[10]*lz+retM[14])}draw(c,gl.LINE_STRIP,[.99,.82,.09,1],V,P);draw([ret[0],ret[1],ret[2]],gl.POINTS,[.99,.82,.09,1],V,P)}
    if(pts.length){const arr=pts.flat();if(ret)arr.push(...ret);draw(arr,gl.LINE_STRIP,[1,1,1,1],V,P);draw(pts.flat(),gl.POINTS,[.99,.82,.09,1],V,P)}}
   if(t-lastUpd>120){lastUpd=t;upd(pts.length&&ret?dist(ret,pts[pts.length-1]):null)}};
  sess.requestAnimationFrame(onFrame);sess.addEventListener("end",()=>{ov.style.display="none";arKeep(res)})}
-function arKeep(res){const r=$("#arRes");if(!r)return;r.hidden=false;if(!res.length){r.innerHTML=`<p class="note">Δεν ολοκληρώθηκε καμία μέτρηση. Στο «Μήκος» πατάς ＋ στην αρχή και ＋ στο τέλος — η μέτρηση κρατιέται μόνη της.</p>`;return}
- const f=m=>nf(m*100,1)+" εκ.",txt=res.map((x,i)=>x.type==="len"?`${i+1}) Μήκος: ${f(x.v)}`:`${i+1}) Σχήμα: εμβαδό ${nf(x.area,3)} m² · περίμετρος ${f(x.per)} · πλευρές ${x.sides.map(f).join(", ")}`).join("\n");
- r.innerHTML=`<h3>Μετρήσεις (${res.length})</h3><pre style="white-space:pre-wrap;font:inherit;margin:0 0 10px">${esc(txt)}</pre><div class="row"><button class="btn ghost small" id="arSv">📒 Αποθήκευση</button><button class="btn ghost small" id="arSh">↗ Αποστολή</button></div>`;$("#arSv").onclick=()=>saveMeasure("ar","Μετροταινία",txt);$("#arSh").onclick=()=>shareText("Μέτρηση",txt)}
+function arKeep(res){const r=$("#arRes");if(!r)return;r.hidden=false;const k=S.settings.arScale||1,calTxt=`<div class="kv" style="margin-top:8px"><span>Διόρθωση κλίμακας</span><b>×${nf(k,3)}</b></div>`;
+ if(!res.length){r.innerHTML=`<p class="note">Δεν ολοκληρώθηκε καμία μέτρηση. Στο «Μήκος» πατάς ＋ στην αρχή και ＋ στο τέλος — η μέτρηση κρατιέται μόνη της.</p>${calTxt}`;return}
+ const f=m=>nf(m*100,1)+" εκ.",txt=res.map((x,i)=>x.type==="len"?`${i+1}) Μήκος: ${f(x.v)}`:`${i+1}) Σχήμα: εμβαδό ${nf(x.area,3)} m² · περίμετρος ${f(x.per)} · πλευρές ${x.sides.map(f).join(", ")}`).join("\n"),lens=res.filter(x=>x.type==="len");
+ r.innerHTML=`<h3>Μετρήσεις (${res.length})</h3><pre style="white-space:pre-wrap;font:inherit;margin:0 0 10px">${esc(txt)}</pre><div class="row"><button class="btn ghost small" id="arSv">📒 Αποθήκευση</button><button class="btn ghost small" id="arSh">↗ Αποστολή</button></div>
+ ${lens.length?`<div class="card" style="margin:12px 0 0;background:var(--paper)"><b>🎯 Βγήκε λάθος;</b><p class="note">Αν μέτρησες κάτι που ξέρεις το πραγματικό του μήκος (π.χ. πλακάκι 50 εκ.), γράψε το εδώ. Η εφαρμογή διορθώνει από εδώ και πέρα όλες τις μετρήσεις αυτού του κινητού.</p><div class="row"><label class="fld" style="flex:2">Πραγματικό μήκος της τελευταίας μέτρησης<span class="in"><input type="number" inputmode="decimal" id="arReal" placeholder="π.χ. 50"><span class="u">εκ.</span></span></label></div><div class="row" style="margin-top:8px"><button class="btn amber small" id="arCal">✓ Διόρθωσε</button><button class="btn ghost small" id="arCal0">Χωρίς διόρθωση</button></div>${calTxt}</div>`:calTxt}`;
+ $("#arSv").onclick=()=>saveMeasure("ar","Μετροταινία",txt);$("#arSh").onclick=()=>shareText("Μέτρηση",txt);
+ const c=$("#arCal");c&&(c.onclick=()=>{const real=parseFloat(String($("#arReal").value).replace(",","."))/100,last=lens[lens.length-1];if(!(real>0)||!(last.raw>0))return toast("Γράψε το πραγματικό μήκος σε εκατοστά.");const ns=real/last.raw;if(ns<.5||ns>2)return toast("Η διαφορά είναι πολύ μεγάλη — ξαναμέτρησε πιο προσεκτικά και δοκίμασε πάλι.");S.settings.arScale=ns;changed();toast("✓ Διορθώθηκε (×"+nf(ns,3)+"). Ξαναμέτρησε για επιβεβαίωση.");arKeep(res.map(x=>x.type==="len"?Object.assign({},x,{v:x.raw*ns}):x))});
+ const c0=$("#arCal0");c0&&(c0.onclick=()=>{S.settings.arScale=1;changed();toast("Η διόρθωση σβήστηκε.");arKeep(res)})}
 /* =========================================================
    ΠΙΝΑΚΕΣ & ΜΕΤΑΤΡΟΠΕΣ
    ========================================================= */
