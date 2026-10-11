@@ -4,7 +4,7 @@
   Απαγορεύεται η αντιγραφή, τροποποίηση και διάθεση, εν όλω ή εν μέρει, χωρίς προηγούμενη γραπτή άδεια του κατόχου.
   Copying, modification and distribution, in whole or in part, without the owner's prior written permission are prohibited.
 */
-const CACHE="ergaleiothiki-1.1.1",SHELL=["./","./index.html","./antigrafa.js","./efarmoges-mas.js","./manifest.json","./icon-192.png","./icon-512.png","./icon-512-maskable.png","./apple-touch-icon.png"];
+const CACHE="ergaleiothiki-1.2.0",SHELL=["./","./index.html","./antigrafa.js","./efarmoges-mas.js","./manifest.json","./icon-192.png","./icon-512.png","./icon-512-maskable.png","./apple-touch-icon.png"];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>Promise.all(SHELL.map(u=>c.add(u).catch(()=>{})))))});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(n=>n!==CACHE).map(n=>caches.delete(n)))).then(()=>self.clients.claim()))});
 self.addEventListener("message",e=>{e.data&&e.data.type==="skipWaiting"&&self.skipWaiting()});
