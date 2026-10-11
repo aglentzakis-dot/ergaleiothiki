@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.0.3">
+<meta name="app-version" content="1.1.0">
 <meta name="theme-color" content="#17324D">
 <meta name="description" content="Εργαλειοθήκη για μάστορες: αλφάδι, χάρακας, μετροταινία, πυξίδα, ηχόμετρο, φακός και υπολογισμοί υλικών.">
 <title>Εργαλειοθήκη</title>
@@ -121,6 +121,16 @@ canvas.graph{width:100%;height:150px;background:var(--paper);border-radius:12px;
 #arOverlay .ab button.add{width:80px;height:80px;font-size:40px;background:#FDD117}
 #arOverlay .ab button.done{background:#2E7D5B;color:#fff}
 #arOverlay .ab[hidden]{display:none}
+.hrow{display:flex;gap:8px;align-items:center;margin:2px 0 12px}.hrow .search{flex:1;margin:0;min-width:0}.hrow .search input{min-width:0;width:100%}.hrow .btn{flex:none}
+.robar{background:#FFF4D6;color:#5B4300;border:1px solid #F2D27A;border-radius:12px;padding:10px 12px;font-size:13.5px;margin:0 0 6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+h2.cat.ro{display:flex;align-items:center;gap:8px}h2.cat.ro span:first-child{flex:1}
+.mv{display:flex;gap:4px;flex:none}.mv button{border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:9px;width:38px;height:34px;font-size:15px}.mv button:disabled{opacity:.3}
+.grid.one{grid-template-columns:1fr;gap:6px}.tile.ro{padding:6px 8px;min-height:52px}.tile.ro .ic{width:36px;height:36px;font-size:20px}.tile.ro .tt{flex:1;min-width:0}.tile.ro .tt b{font-size:13.5px}
+.tile.gold{background:linear-gradient(160deg,#FDD117,#EF9F02);border-color:#E0A800;color:#17324D}.tile.gold small{color:#3d3200}.tile.gold .ic{background:#fff}
+.mybtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);border:2px solid var(--accent);border-radius:14px;padding:10px 12px;margin:0 0 12px;font-size:20px;color:var(--ink)}
+.mybtn .mt{flex:1;min-width:0;font-size:15px}.mybtn small{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hint{font-weight:500;font-size:11.5px;color:var(--muted)}
+.disc{font-size:12.5px;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px;line-height:1.45}
 .footer{color:var(--muted);font-size:12px;text-align:center;margin:18px 0 4px}
 </style>
 </head>
@@ -150,7 +160,7 @@ canvas.graph{width:100%;height:150px;background:var(--paper);border-radius:12px;
   © 2026 Ανδρέας Μ. Γλεντζάκης (Andreas M. Glentzakis). Με την επιφύλαξη παντός δικαιώματος. All rights reserved.
 */
 "use strict";
-const APP_VERSION="1.0.3",APP_BUILD="2026-10-09",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
+const APP_VERSION="1.1.0",APP_BUILD="2026-10-11",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
 APP_URL="https://aglentzakis-dot.github.io/ergaleiothiki/",FS_DB="shared-backups",FS_STORE="handles",FS_KEY="ergaleiothiki-root",FS_SUB="Εργαλειοθήκη",BK_PREFIX="ergaleiothiki-antigrafo";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const T=(s,v)=>{if(v)for(const k in v)s=s.split("{"+k+"}").join(v[k]);return s};
@@ -164,7 +174,7 @@ const DEG=Math.PI/180;
 let S=load();
 function load(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch{}
  s.settings=Object.assign({beep:true,vib:true,pxPerMm:0,levelZero:{x:0,y:0,r:0},dbOffset:0,phoneH:150,theme:"auto",gdrive:{},bkWarned:0},s.settings||{});
- s.calc=s.calc||{};s.saved=s.saved||[];s.list=s.list||[];s.meta=Object.assign({changes:0},s.meta||{});return s}
+ s.calc=s.calc||{};s.calcP=s.calcP||{};s.saved=s.saved||[];s.list=s.list||[];s.meta=Object.assign({changes:0},s.meta||{});return s}
 function write(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch{toast("Δεν αποθηκεύτηκε — ο χώρος της συσκευής γέμισε.")}}
 function changed(){S.meta.changes=(S.meta.changes||0)+1;S.meta.lastChange=Date.now();write();bkOnChange()}
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("on"),2600)}
@@ -198,91 +208,137 @@ async function shareText(title,text){try{if(navigator.share){await navigator.sha
 /* =========================================================
    ΥΠΟΛΟΓΙΣΜΟΙ (κοινό πλαίσιο)
    ========================================================= */
-const ceil=Math.ceil;
+const ceil=Math.ceil,up=(x,s)=>Math.ceil(x/s-1e-9)*s;
+const F=(k,l,u,d,o)=>Object.assign({k,l,u,d},o||{}),SEL=(k,l,d,sel,o)=>Object.assign({k,l,u:"",d,sel},o||{});
+const YN=[["Ναι",1],["Όχι",0]];
 const CALCS={
 plakakia:{t:"Πλακάκια",ic:"🟫",d:"τεμάχια, κουτιά, κόλλα, αρμόστοκος",
- help:"Βάλε τις διαστάσεις του χώρου και του πλακακιού. Η φύρα (συνήθως 10%, 15% σε διαγώνιο στρώσιμο) καλύπτει κοψίματα και σπασίματα. Ο αρμόστοκος υπολογίζεται με τον γνωστό τύπο των κατασκευαστών: (Α+Β)/(Α×Β) × πλάτος αρμού × βάθος × 1,6.",
- f:[["L","Μήκος χώρου","m",4],["W","Πλάτος χώρου","m",3],["minus","Αφαίρεση (ντουζιέρα, ντουλάπια)","m²",0],["a","Πλακάκι μήκος","cm",60],["b","Πλακάκι πλάτος","cm",60],["thick","Πάχος πλακακιού","mm",9],["joint","Αρμός","mm",3],["waste","Φύρα","%",10],["box","Τετραγωνικά ανά κουτί","m²",1.44],["glue","Κόλλα ανά m²","kg",5],["bag","Σακί κόλλας","kg",25]],
- c(v){const A=Math.max(0,v.L*v.W-v.minus),tA=v.a*v.b/1e4,n=ceil(A*(1+v.waste/100)/tA),m2=n*tA,boxes=v.box>0?ceil(A*(1+v.waste/100)/v.box):0,glue=A*v.glue,gb=ceil(glue/v.bag),am=v.a*10,bm=v.b*10,grout=(am+bm)/(am*bm)*v.joint*v.thick*1.6*A;
-  return{r:[["Εμβαδό",nf(A)+" m²"],["Πλακάκια (με φύρα)",n+" τεμ.",1],["Αντιστοιχούν σε",nf(m2)+" m²"],boxes?["Κουτιά",boxes+" κουτιά",1]:null,["Κόλλα",nf(glue,1)+" kg → "+gb+" σακιά",1],["Αρμόστοκος",nf(grout,1)+" kg"],["Σταυρουδάκια (περίπου)",ceil(n*3)+" τεμ."]],
-  l:[{item:`Πλακάκια ${v.a}×${v.b}`,qty:boxes||n,unit:boxes?"κουτιά":"τεμ."},{item:"Κόλλα πλακιδίων "+v.bag+"kg",qty:gb,unit:"σακιά"},{item:"Αρμόστοκος",qty:ceil(grout),unit:"kg"},{item:"Σταυρουδάκια "+v.joint+"mm",qty:ceil(n*3),unit:"τεμ."}]}}},
+ help:"Βάλε τις διαστάσεις του χώρου και του πλακακιού. Η φύρα καλύπτει κοψίματα και σπασίματα (ίσιο στρώσιμο περίπου 10%, διαγώνιο ή ψαροκόκαλο 15%). Ο αρμόστοκος υπολογίζεται με τον τύπο των κατασκευαστών: (Α+Β)/(Α×Β) × πλάτος αρμού × βάθος × πυκνότητα. Στις «Ρυθμίσεις μου» δηλώνεις μία φορά φύρα, κατανάλωση κόλλας, σακιά κ.λπ.",
+ f:[F("L","Μήκος χώρου","m",4,{req:1}),F("W","Πλάτος χώρου","m",3,{req:1}),F("minus","Αφαίρεση (ντουζιέρα, ντουλάπια)","m²",0),F("a","Πλακάκι μήκος","cm",60,{req:1}),F("b","Πλακάκι πλάτος","cm",60,{req:1}),SEL("lay","Στρώσιμο",0,[["Ίσιο",0],["Διαγώνιο / ψαροκόκαλο",1]])],
+ p:[F("waste","Φύρα σε ίσιο στρώσιμο","%",10),F("wasteD","Φύρα σε διαγώνιο","%",15),F("box","Τετραγωνικά ανά κουτί","m²",1.44,{hint:"0 αν τα αγοράζεις σε τεμάχια"}),F("thick","Πάχος πλακακιού","mm",9,{req:1}),F("joint","Πλάτος αρμού","mm",3,{req:1}),F("glue","Κόλλα ανά m²","kg",5,{hint:"σπάτουλα 8–10 χιλ.: 4–5 kg· μεγάλα πλακάκια με διπλή επάλειψη: 6–7 kg"}),F("bag","Σακί κόλλας","kg",25,{req:1}),F("gdens","Πυκνότητα αρμόστοκου","",1.6,{hint:"συνήθως 1,5–1,7"}),F("cross","Σταυρουδάκια ανά πλακάκι","τεμ.",2)],
+ c(v){const A=Math.max(0,v.L*v.W-v.minus),w=v.lay?v.wasteD:v.waste,need=A*(1+w/100),tA=v.a*v.b/1e4,n=ceil(need/tA),boxes=v.box>0?ceil(need/v.box):0,glue=A*v.glue*1.05,gb=ceil(glue/v.bag),am=v.a*10,bm=v.b*10,grout=(am+bm)/(am*bm)*v.joint*v.thick*v.gdens*A*1.1,cr=ceil(n*v.cross);
+  return{r:[["Εμβαδό",nf(A)+" m²"],["Με φύρα "+w+"%",nf(need)+" m²"],["Πλακάκια",n+" τεμ.",1],boxes?["Κουτιά",boxes+" κουτιά ("+nf(boxes*v.box)+" m²)",1]:null,["Κόλλα",nf(glue,1)+" kg → "+gb+" σακιά × "+v.bag+" kg",1],["Αρμόστοκος",ceil(grout)+" kg"],cr?["Σταυρουδάκια "+v.joint+" χιλ.",up(cr,50)+" τεμ."]:null],
+  l:[{item:`Πλακάκια ${v.a}×${v.b}`,qty:boxes||n,unit:boxes?"κουτιά":"τεμ."},{item:"Κόλλα πλακιδίων "+v.bag+"kg",qty:gb,unit:"σακιά"},{item:"Αρμόστοκος",qty:ceil(grout),unit:"kg"},cr?{item:"Σταυρουδάκια "+v.joint+"mm",qty:up(cr,50),unit:"τεμ."}:null].filter(Boolean)}}},
 bogia:{t:"Μπογιά",ic:"🎨",d:"λίτρα για τοίχους και ταβάνι",
- help:"Υπολογίζει τοίχους από την περίμετρο × ύψος, μείον πόρτες και παράθυρα. Η απόδοση γράφεται στο δοχείο (συνήθως 10–12 m² ανά λίτρο ανά χέρι). Το αστάρι υπολογίζεται με ένα χέρι.",
- f:[["L","Μήκος δωματίου","m",4],["W","Πλάτος δωματίου","m",3],["H","Ύψος","m",2.7],["doors","Πόρτες","τεμ.",1],["wins","Παράθυρα","τεμ.",1],["ceil","Και ταβάνι; (1=ναι, 0=όχι)","",1],["coats","Χέρια","",2],["cov","Απόδοση","m²/λίτρο",10],["can","Δοχείο","λίτρα",9],["prim","Απόδοση αστάρι","m²/λίτρο",12]],
- c(v){const walls=Math.max(0,2*(v.L+v.W)*v.H-v.doors*1.8-v.wins*1.5),ce=v.ceil?v.L*v.W:0,A=walls+ce,lit=A*v.coats/v.cov,cans=ceil(lit/v.can),pr=A/v.prim;
-  return{r:[["Τοίχοι",nf(walls)+" m²"],["Ταβάνι",nf(ce)+" m²"],["Σύνολο επιφάνειας",nf(A)+" m²"],["Χρώμα",nf(lit,1)+" λίτρα",1],["Δοχεία",cans+" × "+v.can+" λίτρα",1],["Αστάρι",nf(pr,1)+" λίτρα"]],
-  l:[{item:"Πλαστικό χρώμα "+v.can+"L",qty:cans,unit:"δοχεία"},{item:"Αστάρι",qty:ceil(pr),unit:"λίτρα"}]}}},
+ help:"Τοίχοι = περίμετρος × ύψος, μείον πόρτες και παράθυρα. Η απόδοση γράφεται στο δοχείο (συνήθως 10–12 m² ανά λίτρο ανά χέρι)· η εφαρμογή παίρνει τη μικρότερη για να μη σου λείψει. Στις «Ρυθμίσεις μου» δηλώνεις απόδοση, μέγεθος δοχείων και εμβαδό πόρτας/παραθύρου.",
+ f:[F("L","Μήκος δωματίου","m",4,{req:1}),F("W","Πλάτος δωματίου","m",3,{req:1}),F("H","Ύψος","m",2.7,{req:1}),F("doors","Πόρτες","τεμ.",1),F("wins","Παράθυρα","τεμ.",1),SEL("ceil","Και ταβάνι",1,YN),SEL("coats","Χέρια χρώματος",2,[["1",1],["2",2],["3",3]]),SEL("prim","Αστάρι",1,YN)],
+ p:[F("cov","Απόδοση χρώματος ανά χέρι","m²/λίτρο",10,{req:1}),F("can","Δοχείο χρώματος","λίτρα",9,{req:1}),F("pcov","Απόδοση ασταριού","m²/λίτρο",12,{req:1}),F("pcan","Δοχείο ασταριού","λίτρα",3,{req:1}),F("doorA","Εμβαδό πόρτας","m²",1.9),F("winA","Εμβαδό παραθύρου","m²",1.5),F("waste","Περιθώριο","%",5)],
+ c(v){const walls=Math.max(0,2*(v.L+v.W)*v.H-v.doors*v.doorA-v.wins*v.winA),ce=v.ceil?v.L*v.W:0,A=walls+ce,k=1+v.waste/100,lit=A*v.coats/v.cov*k,cans=ceil(lit/v.can),pr=v.prim?A/v.pcov*k:0,pc=ceil(pr/v.pcan);
+  return{r:[["Τοίχοι",nf(walls)+" m²"],["Ταβάνι",nf(ce)+" m²"],["Σύνολο επιφάνειας",nf(A)+" m²"],["Χρώμα ("+v.coats+" χέρια)",nf(up(lit,.5),1)+" λίτρα",1],["Δοχεία",cans+" × "+v.can+" λίτρα",1],v.prim?["Αστάρι",nf(up(pr,.5),1)+" λίτρα → "+pc+" × "+v.pcan+" λίτρα"]:null],
+  l:[{item:"Πλαστικό χρώμα "+v.can+"L",qty:cans,unit:"δοχεία"},v.prim?{item:"Αστάρι "+v.pcan+"L",qty:pc,unit:"δοχεία"}:null].filter(Boolean)}}},
 beton:{t:"Μπετόν",ic:"🧱",d:"κυβικά, τσιμέντο, άμμος, χαλίκι",
- help:"Ενδεικτικές αναλογίες για 1 m³ σκυροδέματος (περίπου C16/20–C20/25): 350 kg τσιμέντο, 0,45 m³ άμμος, 0,85 m³ χαλίκι, 180 λίτρα νερό. Για φέροντα στοιχεία με οπλισμό ακολουθείς πάντα τη μελέτη του μηχανικού.",
- f:[["L","Μήκος","m",5],["W","Πλάτος","m",4],["th","Πάχος","cm",10],["extra","Περιθώριο","%",5],["cem","Τσιμέντο ανά m³","kg",350],["bag","Σακί τσιμέντου","kg",50]],
- c(v){const V=v.L*v.W*v.th/100*(1+v.extra/100),c=V*v.cem;
-  return{r:[["Όγκος",nf(V,2)+" m³",1],["Τσιμέντο",nf(c,0)+" kg → "+ceil(c/v.bag)+" σακιά",1],["Άμμος",nf(V*.45,2)+" m³"],["Χαλίκι",nf(V*.85,2)+" m³"],["Νερό",nf(V*180,0)+" λίτρα"],["Ή έτοιμο μπετόν",nf(V,1)+" m³ από μπετονιέρα"]],
-  l:[{item:"Τσιμέντο "+v.bag+"kg",qty:ceil(c/v.bag),unit:"σακιά"},{item:"Άμμος",qty:+(V*.45).toFixed(2),unit:"m³"},{item:"Χαλίκι",qty:+(V*.85).toFixed(2),unit:"m³"}]}}},
+ help:"Ενδεικτικές αναλογίες για 1 m³ σκυροδέματος (περίπου C16/20–C20/25): 350 kg τσιμέντο, 0,45 m³ άμμος, 0,85 m³ χαλίκι, 180 λίτρα νερό. Τις αλλάζεις στις «Ρυθμίσεις μου». Για φέροντα στοιχεία με οπλισμό ισχύει πάντα η μελέτη του μηχανικού.",
+ f:[F("L","Μήκος","m",5,{req:1}),F("W","Πλάτος","m",4,{req:1}),F("th","Πάχος / ύψος","cm",10,{req:1}),F("cnt","Πλήθος ίδιων κομματιών","τεμ.",1,{req:1})],
+ p:[F("extra","Περιθώριο","%",5),F("cem","Τσιμέντο ανά m³","kg",350,{req:1}),F("bag","Σακί τσιμέντου","kg",50,{req:1}),F("sand","Άμμος ανά m³","m³",.45),F("grav","Χαλίκι ανά m³","m³",.85),F("water","Νερό ανά m³","λίτρα",180),F("truck","Στρογγύλεμα έτοιμου μπετόν","m³",.5,{hint:"πόσο στρογγυλεύει η μπετονιέρα την παραγγελία"})],
+ c(v){const V=v.L*v.W*v.th/100*v.cnt*(1+v.extra/100),c=V*v.cem,b=ceil(c/v.bag),s=up(V*v.sand,.1),g=up(V*v.grav,.1);
+  return{r:[["Όγκος (με περιθώριο)",nf(V,2)+" m³",1],["Τσιμέντο",nf(c,0)+" kg → "+b+" σακιά",1],["Άμμος",nf(s,1)+" m³"],["Χαλίκι",nf(g,1)+" m³"],["Νερό",up(V*v.water,5)+" λίτρα"],["Ή έτοιμο μπετόν",nf(v.truck>0?up(V,v.truck):V,1)+" m³ από μπετονιέρα"]],
+  l:[{item:"Τσιμέντο "+v.bag+"kg",qty:b,unit:"σακιά"},{item:"Άμμος",qty:s,unit:"m³"},{item:"Χαλίκι",qty:g,unit:"m³"}],w:["Για κολόνες, δοκάρια, πλάκες και θεμέλια ισχύει η στατική μελέτη του μηχανικού."]}}},
 sovas:{t:"Σοβάς",ic:"🪣",d:"έτοιμο κονίαμα σε σακιά",
- help:"Κατανάλωση έτοιμου σοβά: περίπου 14–16 kg ανά m² για κάθε 1 εκ. πάχος (δες το σακί του κατασκευαστή).",
- f:[["A","Επιφάνεια","m²",30],["th","Πάχος","mm",20],["cons","Κατανάλωση ανά m² ανά εκ.","kg",15],["bag","Σακί","kg",40],["extra","Φύρα","%",5]],
- c(v){const kg=v.A*v.th/10*v.cons*(1+v.extra/100),b=ceil(kg/v.bag);return{r:[["Ποσότητα",nf(kg,0)+" kg"],["Σακιά",b+" × "+v.bag+" kg",1]],l:[{item:"Έτοιμος σοβάς "+v.bag+"kg",qty:b,unit:"σακιά"}]}}},
+ help:"Κατανάλωση έτοιμου σοβά: περίπου 14–16 kg ανά m² για κάθε 1 εκ. πάχος (δες το σακί του κατασκευαστή). Δηλώνεις στις «Ρυθμίσεις μου» το δικό σου υλικό.",
+ f:[F("A","Επιφάνεια","m²",30,{req:1}),F("open","Ανοίγματα","m²",0),F("th","Πάχος","mm",20,{req:1})],
+ p:[F("cons","Κατανάλωση ανά m² ανά 1 εκ.","kg",15,{req:1}),F("bag","Σακί","kg",40,{req:1}),F("waste","Φύρα","%",5)],
+ c(v){const net=Math.max(0,v.A-v.open),kg=net*v.th/10*v.cons*(1+v.waste/100),b=ceil(kg/v.bag);return{r:[["Καθαρή επιφάνεια",nf(net)+" m²"],["Ποσότητα",nf(kg,0)+" kg"],["Σακιά",b+" × "+v.bag+" kg",1]],l:[{item:"Έτοιμος σοβάς "+v.bag+"kg",qty:b,unit:"σακιά"}]}}},
 touvla:{t:"Τούβλα",ic:"🧱",d:"τεμάχια ανά τοίχο και κονίαμα",
- help:"Τεμάχια ανά m² = 1 / ((μήκος όψης + αρμός) × (ύψος όψης + αρμός)). Για τούβλο 6×9×19: όρθιο (όψη 19×9) ≈ 50 τεμ./m², πλαγιαστό (όψη 19×6) ≈ 71 τεμ./m².",
- f:[["L","Μήκος τοίχου","m",5],["H","Ύψος τοίχου","m",2.8],["open","Ανοίγματα","m²",2],["fl","Μήκος όψης τούβλου","cm",19],["fh","Ύψος όψης τούβλου","cm",9],["j","Αρμός","cm",1],["waste","Φύρα","%",5],["mort","Κονίαμα ανά m²","λίτρα",22]],
- c(v){const A=Math.max(0,v.L*v.H-v.open),per=1/((v.fl+v.j)/100*(v.fh+v.j)/100),n=ceil(A*per*(1+v.waste/100)),m=A*v.mort;return{r:[["Επιφάνεια",nf(A)+" m²"],["Ανά m²",nf(per,1)+" τεμ."],["Τούβλα",n+" τεμ.",1],["Κονίαμα",nf(m,0)+" λίτρα ("+nf(m/1000,2)+" m³)"]],l:[{item:`Τούβλα ${v.fl}×${v.fh}`,qty:n,unit:"τεμ."},{item:"Κονίαμα λάσπης",qty:+(m/1000).toFixed(2),unit:"m³"}]}}},
-gypso:{t:"Γυψοσανίδα",ic:"🔲",d:"φύλλα, προφίλ, βίδες, στόκος",
- help:"Ορθοστάτες ανά 60 εκ., οδηγοί πάνω και κάτω. Βίδες περίπου 25 ανά m² ανά στρώση. Στόκος αρμών περίπου 0,35 kg/m² και ταινία περίπου 1,4 m ανά m² (ενδεικτικά).",
- f:[["L","Μήκος τοίχου","m",4],["H","Ύψος","m",2.7],["sides","Πλευρές με γυψοσανίδα","",2],["layers","Στρώσεις ανά πλευρά","",1],["bw","Φύλλο πλάτος","m",1.2],["bh","Φύλλο ύψος","m",2.5],["step","Απόσταση ορθοστατών","cm",60],["prof","Μήκος προφίλ","m",3],["waste","Φύρα","%",10]],
- c(v){const A=v.L*v.H,cov=A*v.sides*v.layers,boards=ceil(cov*(1+v.waste/100)/(v.bw*v.bh)),studs=ceil(v.L/(v.step/100))+1,studPcs=studs*ceil(v.H/v.prof),tracks=ceil(2*v.L/v.prof),screws=ceil(cov*25),st=cov*.35,tape=cov*1.4;
-  return{r:[["Επιφάνεια τοίχου",nf(A)+" m²"],["Φύλλα",boards+" φύλλα",1],["Ορθοστάτες",studs+" θέσεις → "+studPcs+" × "+v.prof+" m"],["Οδηγοί",tracks+" × "+v.prof+" m"],["Βίδες",screws+" τεμ."],["Στόκος αρμών",nf(st,1)+" kg"],["Ταινία αρμών",nf(tape,0)+" m"]],
-  l:[{item:`Γυψοσανίδα ${v.bw}×${v.bh}`,qty:boards,unit:"φύλλα"},{item:"Ορθοστάτης "+v.prof+"m",qty:studPcs,unit:"τεμ."},{item:"Οδηγός "+v.prof+"m",qty:tracks,unit:"τεμ."},{item:"Βίδες γυψοσανίδας",qty:screws,unit:"τεμ."},{item:"Στόκος αρμών",qty:ceil(st),unit:"kg"},{item:"Ταινία αρμών",qty:ceil(tape),unit:"m"}]}}},
+ help:"Τεμάχια ανά m² = 1 / ((μήκος όψης + αρμός) × (ύψος όψης + αρμός)). Τούβλο 6×9×19: τοίχος 9 εκ. → όψη 19×6 (περίπου 71 τεμ./m²)· τοίχος 6 εκ. → όψη 19×9 (περίπου 50 τεμ./m²). Το τούβλο που χρησιμοποιείς το δηλώνεις στις «Ρυθμίσεις μου».",
+ f:[F("L","Μήκος τοίχου","m",5,{req:1}),F("H","Ύψος τοίχου","m",2.8,{req:1}),F("open","Ανοίγματα","m²",2),SEL("lay","Τοίχος",1,[["Μονός",1],["Διπλός (δύο σειρές)",2]])],
+ p:[F("fl","Μήκος όψης τούβλου","cm",19,{req:1}),F("fh","Ύψος όψης τούβλου","cm",6,{req:1,hint:"6 για τοίχο 9 εκ., 9 για τοίχο 6 εκ."}),F("j","Αρμός","cm",1),F("waste","Φύρα","%",5),F("mort","Κονίαμα ανά m² (μονός)","λίτρα",25)],
+ c(v){const A=Math.max(0,v.L*v.H-v.open),per=1/((v.fl+v.j)/100*(v.fh+v.j)/100),k=1+v.waste/100,n=ceil(A*per*v.lay*k),m=up(A*v.mort*v.lay*k/1000,.05);return{r:[["Επιφάνεια",nf(A)+" m²"],["Ανά m²",nf(per,1)+" τεμ."+(v.lay>1?" × 2":"")],["Τούβλα",up(n,10)+" τεμ.",1],["Κονίαμα",nf(m,2)+" m³"]],l:[{item:`Τούβλα (όψη ${v.fl}×${v.fh})`,qty:up(n,10),unit:"τεμ."},{item:"Κονίαμα λάσπης",qty:m,unit:"m³"}]}}},
+gypso:{t:"Γυψοσανίδα",ic:"🔲",d:"φύλλα, ορθοστάτες, οδηγοί, βίδες, στόκος",
+ help:"Ορθοστάτες ανά 60 εκ. (ή όσο δηλώσεις), οδηγοί πάνω και κάτω. Από κάθε ορθοστάτη κόβονται όσα κομμάτια χωράνε στο ύψος. Στις «Ρυθμίσεις μου» δηλώνεις μία φορά τι υλικά παίρνεις: μέγεθος φύλλου (π.χ. 1,2×3 m), μήκος προφίλ (π.χ. 3 ή 4 m), φύρα, βίδες, στόκο.",
+ f:[F("L","Μήκος τοίχου","m",4,{req:1}),F("H","Ύψος","m",2.7,{req:1}),F("open","Ανοίγματα (πόρτες)","m²",0),SEL("sides","Πλευρές με γυψοσανίδα",2,[["Μία",1],["Δύο",2]]),SEL("layers","Στρώσεις ανά πλευρά",1,[["Μία",1],["Δύο",2]]),SEL("ins","Μόνωση (πετροβάμβακας)",0,[["Όχι",0],["Ναι",1]])],
+ p:[F("bw","Φύλλο πλάτος","m",1.2,{req:1}),F("bh","Φύλλο μήκος","m",2.5,{req:1,hint:"συνήθως 2,5 ή 3 m"}),F("step","Απόσταση ορθοστατών","cm",60,{req:1}),F("prof","Μήκος προφίλ (ορθοστάτη/οδηγού)","m",3,{req:1,hint:"συνήθως 3 ή 4 m"}),F("waste","Φύρα φύλλων","%",10),F("screws","Βίδες ανά m² ανά στρώση","τεμ.",15),F("stok","Στόκος αρμών ανά m²","kg",.35),F("tape","Ταινία αρμών ανά m²","m",1.5),F("anch","Βύσμα στερέωσης οδηγού κάθε","cm",60,{req:1})],
+ c(v){const A=v.L*v.H,net=Math.max(0,A-v.open),cov=net*v.sides*v.layers,boards=ceil(cov*(1+v.waste/100)/(v.bw*v.bh)),studs=ceil(v.L/(v.step/100)-1e-9)+1,per=Math.floor(v.prof/v.H+1e-9),studPcs=per>=1?ceil(studs/per):studs*ceil(v.H/v.prof),tracks=ceil(2*v.L*1.05/v.prof),scr=up(cov*v.screws,50),st=ceil(net*v.sides*v.stok),tp=ceil(net*v.sides*v.tape),an=ceil(2*v.L/(v.anch/100))+2,ins=v.ins?ceil(net*1.05):0;
+  return{r:[["Επιφάνεια τοίχου",nf(net)+" m²"],["Φύλλα "+v.bw+"×"+v.bh,boards+" φύλλα",1],["Ορθοστάτες",studs+" θέσεις → "+studPcs+" × "+v.prof+" m",1],["Οδηγοί",tracks+" × "+v.prof+" m",1],["Βίδες",scr+" τεμ."],["Βύσματα οδηγών",an+" τεμ."],["Στόκος αρμών",st+" kg"],["Ταινία αρμών",tp+" m"],ins?["Μόνωση",ins+" m²"]:null],
+  l:[{item:`Γυψοσανίδα ${v.bw}×${v.bh}`,qty:boards,unit:"φύλλα"},{item:"Ορθοστάτης "+v.prof+"m",qty:studPcs,unit:"τεμ."},{item:"Οδηγός "+v.prof+"m",qty:tracks,unit:"τεμ."},{item:"Βίδες γυψοσανίδας",qty:scr,unit:"τεμ."},{item:"Βύσματα",qty:an,unit:"τεμ."},{item:"Στόκος αρμών",qty:st,unit:"kg"},{item:"Ταινία αρμών",qty:tp,unit:"m"},ins?{item:"Πετροβάμβακας",qty:ins,unit:"m²"}:null].filter(Boolean)}}},
 dapedo:{t:"Δάπεδο ξύλινο",ic:"🪵",d:"πακέτα, υπόστρωμα, σοβατεπί",
- help:"Για δάπεδα σε πακέτα (π.χ. ξύλινα κουμπωτά). Φύρα 5–10% (περισσότερη για στρώσιμο ψαροκόκαλο). Σοβατεπί = περίμετρος μείον πόρτες.",
- f:[["L","Μήκος","m",5],["W","Πλάτος","m",4],["pack","m² ανά πακέτο","m²",2.2],["waste","Φύρα","%",8],["doors","Πλάτος πορτών (σύνολο)","m",0.8],["skl","Μήκος σοβατεπί","m",2.4]],
- c(v){const A=v.L*v.W,p=ceil(A*(1+v.waste/100)/v.pack),per=2*(v.L+v.W)-v.doors,sk=ceil(per*1.05/v.skl);return{r:[["Εμβαδό",nf(A)+" m²"],["Πακέτα",p+" πακέτα",1],["Υπόστρωμα",ceil(A*1.05)+" m²"],["Σοβατεπί",sk+" τεμ. ("+nf(per,1)+" m)"]],l:[{item:"Δάπεδο πακέτο "+v.pack+"m²",qty:p,unit:"πακέτα"},{item:"Υπόστρωμα",qty:ceil(A*1.05),unit:"m²"},{item:"Σοβατεπί "+v.skl+"m",qty:sk,unit:"τεμ."}]}}},
-skala:{t:"Σκάλα",ic:"🪜",d:"ρίχτι, πάτημα, κλίση",
- help:"Κανόνας άνεσης (Blondel): 2 × ρίχτι + πάτημα ≈ 63 εκ. Άνετη σκάλα: ρίχτι 16–18 εκ., πάτημα 26–30 εκ. Ελέγχεις πάντα και τον κτιριοδομικό κανονισμό για το έργο σου.",
- f:[["H","Συνολικό ύψος (δάπεδο σε δάπεδο)","cm",280],["maxR","Μέγιστο ρίχτι","cm",18],["blon","Βήμα Blondel","cm",63]],
- c(v){const n=ceil(v.H/v.maxR),R=v.H/n,P=v.blon-2*R,run=P*(n-1),ang=Math.atan(R/P)/DEG,str=Math.hypot(v.H,run),ok=R>=15&&R<=18.5&&P>=25&&P<=32;
-  return{r:[["Σκαλοπάτια (ρίχτια)",n,1],["Ρίχτι",nf(R,1)+" εκ.",1],["Πάτημα",nf(P,1)+" εκ.",1],["Οριζόντιο μήκος",nf(run,0)+" εκ."],["Κλίση",nf(ang,1)+"°"],["Μήκος λιμπά (περίπου)",nf(str,0)+" εκ."],["Άνεση",ok?"✓ άνετη":"⚠ έλεγξε τις τιμές"]]}}},
+ help:"Για δάπεδα σε πακέτα (π.χ. κουμπωτά). Φύρα 5–10% (περισσότερη για ψαροκόκαλο). Σοβατεπί = περίμετρος μείον πόρτες, με φύρα για τις γωνίες.",
+ f:[F("L","Μήκος","m",5,{req:1}),F("W","Πλάτος","m",4,{req:1}),F("doors","Πλάτος πορτών (σύνολο)","m",.8)],
+ p:[F("pack","m² ανά πακέτο","m²",2.2,{req:1}),F("waste","Φύρα δαπέδου","%",8),F("under","Φύρα υποστρώματος","%",5),F("skl","Μήκος σοβατεπί","m",2.4,{req:1}),F("skw","Φύρα σοβατεπί","%",10)],
+ c(v){const A=v.L*v.W,p=ceil(A*(1+v.waste/100)/v.pack),per=Math.max(0,2*(v.L+v.W)-v.doors),sk=ceil(per*(1+v.skw/100)/v.skl),u=ceil(A*(1+v.under/100));return{r:[["Εμβαδό",nf(A)+" m²"],["Πακέτα",p+" πακέτα ("+nf(p*v.pack)+" m²)",1],["Υπόστρωμα",u+" m²"],["Σοβατεπί",sk+" τεμ. ("+nf(per,1)+" m)"]],l:[{item:"Δάπεδο πακέτο "+v.pack+"m²",qty:p,unit:"πακέτα"},{item:"Υπόστρωμα",qty:u,unit:"m²"},{item:"Σοβατεπί "+v.skl+"m",qty:sk,unit:"τεμ."}]}}},
+skala:{t:"Σκάλα",ic:"🪜",d:"σκαλιά, ρίχτι, πάτημα, κλίση, κλίμακα",
+ help:"Όλα τα ανεβάσματα βγαίνουν ίσα. Το «από πάνω σε πάνω» (ή κέντρο σε κέντρο) είναι η απόσταση από την πάνω επιφάνεια ενός σκαλιού στην πάνω επιφάνεια του επόμενου. Το «καθαρό κενό» είναι αυτό μείον το πάχος του σκαλιού. Δηλώνεις ποιο από τα δύο είναι το όριό σου και η εφαρμογή βγάζει και τα δύο. Κανονική σκάλα: κανόνας άνεσης 2 × ρίχτι + πάτημα ≈ 63 εκ. Με πάτημα 0 το βγάζει αυτόματα. Για σκάλα-κλίμακα (κάθετη ή σχεδόν, π.χ. για στέγη) διάλεξε τον τύπο «Κλίμακα» και δήλωσε γωνία (90° = κάθετη). Ελέγχεις πάντα και τους ισχύοντες κανονισμούς.",
+ f:[SEL("type","Τύπος",0,[["Κανονική σκάλα",0],["Απότομη (σοφίτας / πατάρι)",1],["Κλίμακα (κάθετη ή κεκλιμένη)",2]],{full:1}),F("H","Συνολικό ύψος (δάπεδο σε δάπεδο)","cm",280,{req:1}),F("t","Πάχος σκαλιού","cm",4),SEL("ref","Το όριο που δηλώνω είναι",0,[["Από πάνω σε πάνω (κέντρο σε κέντρο)",0],["Καθαρό κενό ανάμεσα",1]],{full:1}),
+  F("maxR",v=>v.ref?"Μέγιστο καθαρό κενό":"Μέγιστο ρίχτι","cm",18,{req:1,show:v=>v.type!=2}),F("gap",v=>v.ref?"Μέγιστο καθαρό κενό σκαλιών":"Μέγιστη απόσταση σκαλιών","cm",28,{req:1,show:v=>v.type==2}),
+  F("P","Πάτημα (0 = αυτόματο)","cm",0,{show:v=>v.type!=2}),F("ang","Γωνία κλίμακας (90 = κάθετη)","°",75,{req:1,show:v=>v.type==2})],
+ p:[F("blon","Κανόνας άνεσης 2×ρίχτι + πάτημα","cm",63,{req:1,hint:"συνήθως 61–64"})],
+ c(v){const lim=v.type==2?v.gap:v.maxR,cc=v.ref?lim+v.t:lim;if(!(cc>0))return{r:[["Σφάλμα","το όριο πρέπει να είναι μεγαλύτερο από 0"]]};
+  const n=ceil(v.H/cc-1e-9),R=v.H/n,clear=R-v.t,steps=n-1,w=[],marks=steps<=30?[...Array(steps)].map((_,i)=>nf(R*(i+1),1)).join(" · "):"";
+  if(steps<1)w.push("Το ύψος χωράει σε ένα ανέβασμα — δεν χρειάζονται σκαλιά. Μίκρυνε το όριο απόστασης.");if(clear<=0)w.push("Το πάχος του σκαλιού είναι μεγαλύτερο από την απόσταση — έλεγξε τις τιμές.");
+  const base=[["Σκαλιά (κομμάτια)",steps+" τεμ.",1],["Ανεβάσματα (ίσα)",n],["Από πάνω σε πάνω",nf(R,1)+" εκ.",1],["Καθαρό κενό ανάμεσα",clear>0?nf(clear,1)+" εκ.":"—",1]];
+  if(v.type==2){const a=Math.min(90,Math.max(1,v.ang)),run=v.H/Math.tan(a*DEG),len=v.H/Math.sin(a*DEG);
+   if(R>30.5)w.push("Η απόσταση σκαλιών ξεπερνά τα 30 εκ. — για μόνιμες κλίμακες συνήθως 25–30 εκ.");
+   if(a<70)w.push("Κάτω από 70° μοιάζει πια με απότομη σκάλα — διάλεξε τον τύπο «Απότομη» με πάτημα.");
+   w.push("Μόνιμες κλίμακες (π.χ. για στέγη) ακολουθούν κανονισμούς ασφαλείας: ενδεικτικά απόσταση σκαλιών 25–30 εκ., γωνία 75–90°, κλωβός ή σύστημα προστασίας από πτώση σε μεγάλα ύψη, χειρολαβή που προεξέχει πάνω από την έξοδο.");
+   return{r:[...base,["Γωνία",nf(a,0)+"°"],["Πιάνει οριζόντια",nf(run,0)+" εκ."],["Μήκος ορθοστατών (πλαϊνών)",nf(len,0)+" εκ.",1],marks?["Σημάδια (πάνω επιφάνεια από κάτω δάπεδο, εκ.)",marks]:null],w}}
+  let P=v.P>0?v.P:v.blon-2*R;if(!(P>0)){w.push("Με αυτό το ρίχτι ο κανόνας άνεσης δίνει μηδενικό πάτημα — μικραίνεις το ρίχτι ή γράψε το πάτημα που θέλεις.");P=0}
+  const run=P*steps,ang=P>0?Math.atan(R/P)/DEG:90,str=Math.hypot(v.H,run),bl=2*R+P;
+  if(v.type==0){if(R>18.5||R<15)w.push("Για άνετη σκάλα το ρίχτι είναι συνήθως 15–18 εκ.");if(P&&(P<25||P>32))w.push("Για άνετη σκάλα το πάτημα είναι συνήθως 25–32 εκ.");if(bl<60||bl>65)w.push("2 × ρίχτι + πάτημα = "+nf(bl,1)+" εκ. — άνετο είναι 61–64.")}
+  else if(ang>70)w.push("Κλίση πάνω από 70° — σκέψου κλίμακα αντί για σκάλα.");
+  return{r:[...base,["Πάτημα"+(v.P>0?"":" (αυτόματο)"),nf(P,1)+" εκ.",1],["Οριζόντιο μήκος",nf(run,0)+" εκ."],["Κλίση",nf(ang,1)+"°"],["2 × ρίχτι + πάτημα",nf(bl,1)+" εκ."],["Μήκος λιμπά (περίπου)",nf(str,0)+" εκ."],marks?["Σημάδια (πάνω επιφάνεια από κάτω δάπεδο, εκ.)",marks]:null,v.type==0?["Άνεση",w.length?"⚠ δες τις σημειώσεις":"✓ άνετη"]:null],w}}},
 klisi:{t:"Κλίση & πτώση",ic:"📐",d:"%, μοίρες, πτώση σωλήνα, στέγη",
- help:"Τυπικές κλίσεις: αποχέτευση 1–2%, δάπεδο μπάνιου προς σιφόνι 1–1,5%, βεράντα/ταράτσα 1–2%, κεραμοσκεπή περίπου 30–45%. Πτώση = μήκος × κλίση.",
- f:[["len","Οριζόντιο μήκος","m",5],["pct","Κλίση","%",2]],
- c(v){const drop=v.len*v.pct/100,deg=Math.atan(v.pct/100)/DEG,slope=Math.hypot(v.len,drop);return{r:[["Πτώση",nf(drop*100,1)+" εκ.",1],["Σε μοίρες",nf(deg,2)+"°"],["Χιλιοστά ανά μέτρο",nf(v.pct*10,1)+" mm/m"],["Μήκος στην κλίση",nf(slope,3)+" m"],["Αναλογία",v.pct>0?"1 : "+nf(100/v.pct,1):"—"]]}}},
+ help:"Τυπικές κλίσεις: αποχέτευση 1–2%, δάπεδο μπάνιου προς σιφόνι 1–1,5%, βεράντα/ταράτσα 1–2%, κεραμοσκεπή περίπου 30–45%. Πτώση = μήκος × κλίση. Διάλεξε τι ξέρεις και η εφαρμογή βγάζει τα υπόλοιπα.",
+ f:[SEL("mode","Ξέρω",0,[["την κλίση (%)",0],["την πτώση (εκ.)",1],["τις μοίρες",2]]),F("len","Οριζόντιο μήκος","m",5,{req:1}),F("pct","Κλίση","%",2,{show:v=>v.mode==0}),F("drop","Πτώση","εκ.",10,{show:v=>v.mode==1}),F("deg","Μοίρες","°",1.15,{show:v=>v.mode==2})],
+ c(v){const pct=v.mode==0?v.pct:v.mode==1?v.drop/(v.len*100)*100:Math.tan(v.deg*DEG)*100,drop=v.len*pct/100,deg=Math.atan(pct/100)/DEG;return{r:[["Πτώση",nf(drop*100,1)+" εκ.",1],["Κλίση",nf(pct,2)+" %",1],["Μοίρες",nf(deg,2)+"°"],["Χιλιοστά ανά μέτρο",nf(pct*10,1)+" mm/m"],["Μήκος πάνω στην κλίση",nf(Math.hypot(v.len,drop),3)+" m"],["Αναλογία",pct>0?"1 : "+nf(100/pct,1):"—"]]}}},
 embado:{t:"Εμβαδά & όγκοι",ic:"⬛",d:"σχήματα, ορθή γωνία 3-4-5",
- help:"Διάλεξε σχήμα. Για ορθή γωνία στο εργοτάξιο: μετράς 3 m στη μία πλευρά, 4 m στην άλλη, η διαγώνιος πρέπει να βγει 5 m (ή χρησιμοποίησε τη διαγώνιο που δίνει ο υπολογισμός).",
- f:[["shape","Σχήμα","",0,[["Ορθογώνιο",0],["Τρίγωνο",1],["Κύκλος",2],["Τραπέζιο",3],["Κύλινδρος (όγκος)",4],["Κουτί (όγκος)",5]]],["a","Μήκος / βάση / διάμετρος","m",4],["b","Πλάτος / ύψος / 2η βάση","m",3],["c","Ύψος (τραπέζιο, κουτί)","m",1]],
- c(v){const s=+v.shape;let r=[];if(s===0)r=[["Εμβαδό",nf(v.a*v.b,3)+" m²",1],["Περίμετρος",nf(2*(v.a+v.b),2)+" m"],["Διαγώνιος (για γωνία 90°)",nf(Math.hypot(v.a,v.b),3)+" m",1]];
-  if(s===1)r=[["Εμβαδό",nf(v.a*v.b/2,3)+" m²",1]];if(s===2)r=[["Εμβαδό",nf(Math.PI*v.a*v.a/4,3)+" m²",1],["Περιφέρεια",nf(Math.PI*v.a,3)+" m"]];
-  if(s===3)r=[["Εμβαδό",nf((v.a+v.b)/2*v.c,3)+" m²",1]];if(s===4){const V=Math.PI*v.a*v.a/4*v.b;r=[["Όγκος",nf(V,3)+" m³",1],["Σε λίτρα",nf(V*1000,0)+" λίτρα",1]]}
-  if(s===5){const V=v.a*v.b*v.c;r=[["Όγκος",nf(V,3)+" m³",1],["Σε λίτρα",nf(V*1000,0)+" λίτρα"]]}return{r}}},
-ohm:{t:"Ρεύμα & ισχύς",ic:"⚡",d:"Αμπέρ από Watt, νόμος του Ohm",
+ help:"Διάλεξε σχήμα. Για ορθή γωνία στο εργοτάξιο: μετράς 3 m στη μία πλευρά, 4 m στην άλλη, η διαγώνιος πρέπει να βγει 5 m (ή χρησιμοποίησε τη διαγώνιο που δίνει το ορθογώνιο).",
+ f:[SEL("shape","Σχήμα",0,[["Ορθογώνιο",0],["Τρίγωνο",1],["Κύκλος",2],["Τραπέζιο",3],["Κύλινδρος (όγκος)",4],["Κουτί (όγκος)",5]]),
+  F("a",v=>["Μήκος","Βάση","Διάμετρος","Μεγάλη βάση","Διάμετρος","Μήκος"][v.shape],"m",4,{req:1}),F("b",v=>["Πλάτος","Ύψος τριγώνου","","Μικρή βάση","Ύψος","Πλάτος"][v.shape],"m",3,{req:1,show:v=>v.shape!=2}),F("c",v=>v.shape==3?"Ύψος τραπεζίου":"Ύψος","m",1,{req:1,show:v=>v.shape==3||v.shape==5})],
+ c(v){const s=+v.shape;if(s===0)return{r:[["Εμβαδό",nf(v.a*v.b,3)+" m²",1],["Περίμετρος",nf(2*(v.a+v.b),2)+" m"],["Διαγώνιος (για γωνία 90°)",nf(Math.hypot(v.a,v.b),3)+" m",1]]};
+  if(s===1)return{r:[["Εμβαδό",nf(v.a*v.b/2,3)+" m²",1]]};if(s===2)return{r:[["Εμβαδό",nf(Math.PI*v.a*v.a/4,3)+" m²",1],["Περιφέρεια",nf(Math.PI*v.a,3)+" m"]]};
+  if(s===3)return{r:[["Εμβαδό",nf((v.a+v.b)/2*v.c,3)+" m²",1]]};if(s===4){const V=Math.PI*v.a*v.a/4*v.b;return{r:[["Όγκος",nf(V,3)+" m³",1],["Σε λίτρα",nf(V*1000,0)+" λίτρα",1]]}}
+  const V=v.a*v.b*v.c;return{r:[["Όγκος",nf(V,3)+" m³",1],["Σε λίτρα",nf(V*1000,0)+" λίτρα"]]}}},
+ohm:{t:"Ρεύμα & ισχύς",ic:"⚡",d:"Αμπέρ από Watt, ασφάλεια",
  help:"Μονοφασικό: I = P / (V × συνφ). Τριφασικό: I = P / (√3 × V × συνφ). Για ωμικά φορτία (θερμοσίφωνας, κουζίνα) συνφ = 1, για μοτέρ περίπου 0,8–0,85.",
- f:[["ph","Παροχή","",1,[["Μονοφασική 230V",1],["Τριφασική 400V",3]]],["P","Ισχύς","W",3000],["cos","Συντελεστής ισχύος (συνφ)","",1]],
- c(v){const V=v.ph==3?400:230,I=v.ph==3?v.P/(Math.sqrt(3)*V*v.cos):v.P/(V*v.cos),R=v.ph==3?null:V*V/v.P;const br=[6,10,16,20,25,32,40,50,63].find(x=>x>=I*1.0);
-  return{r:[["Ρεύμα",nf(I,2)+" A",1],R?["Αντίσταση φορτίου",nf(R,1)+" Ω"]:null,["Ενέργεια ανά ώρα",nf(v.P/1000,2)+" kWh"],["Πλησιέστερη ασφάλεια (ενδεικτικά)",br?br+" A":"> 63 A"]]}}},
+ f:[SEL("ph","Παροχή",1,[["Μονοφασική",1],["Τριφασική",3]]),F("P","Ισχύς","W",3000,{req:1}),F("cos","Συντελεστής ισχύος (συνφ)","",1,{req:1,hint:"1 για αντιστάσεις, περίπου 0,8 για μοτέρ"})],
+ p:[F("V1","Τάση μονοφασική","V",230,{req:1}),F("V3","Τάση τριφασική","V",400,{req:1})],
+ c(v){const V=v.ph==3?v.V3:v.V1,I=v.ph==3?v.P/(Math.sqrt(3)*V*v.cos):v.P/(V*v.cos),br=[6,10,16,20,25,32,40,50,63].find(x=>x>=I);
+  return{r:[["Ρεύμα",nf(I,2)+" A",1],v.ph==3?null:["Αντίσταση φορτίου",nf(V*V/v.P,1)+" Ω"],["Κατανάλωση ανά ώρα",nf(v.P/1000,2)+" kWh"],["Ελάχιστη ασφάλεια (ενδεικτικά)",br?br+" A":"πάνω από 63 A",1]],w:["Ενδεικτικοί υπολογισμοί. Ηλεκτρολογική εγκατάσταση κάνει και υπογράφει μόνο αδειούχος ηλεκτρολόγος, σύμφωνα με τους ισχύοντες κανονισμούς."]}}},
 kalodio:{t:"Καλώδιο & πτώση τάσης",ic:"🔌",d:"διατομή ανάλογα με μήκος και φορτίο",
- help:"Υπολογίζει πτώση τάσης για χαλκό σε θερμοκρασία λειτουργίας (ειδική αντίσταση 0,0225 Ω·mm²/m). Συνηθισμένα όρια: 3% για φωτισμό, 5% για άλλες καταναλώσεις. Η φέρουσα ικανότητα είναι ενδεικτική για καλώδιο σε σωλήνα. ΔΕΝ αντικαθιστά μελέτη ή έλεγχο από αδειούχο ηλεκτρολόγο.",
- f:[["ph","Παροχή","",1,[["Μονοφασική 230V",1],["Τριφασική 400V",3]]],["P","Ισχύς φορτίου","W",3000],["len","Μήκος γραμμής (μονή διαδρομή)","m",25],["cos","συνφ","",1],["lim","Όριο πτώσης","%",3]],
- c(v){const V=v.ph==3?400:230,I=v.ph==3?v.P/(Math.sqrt(3)*V*v.cos):v.P/(V*v.cos),rho=.0225,amp={1.5:17.5,2.5:24,4:32,6:41,10:57,16:76,25:101,35:125};let pick=null;const rows=[["Ρεύμα",nf(I,2)+" A",1]];
-  for(const s of [1.5,2.5,4,6,10,16,25,35]){const dv=v.ph==3?Math.sqrt(3)*v.len*I*rho*v.cos/s:2*v.len*I*rho*v.cos/s,pc=dv/V*100,ok=pc<=v.lim&&amp[s]>=I;if(ok&&!pick)pick=s;rows.push([nf(s,1)+" mm²",nf(pc,2)+"% · έως "+nf(amp[s],1)+" A"+(ok?" ✓":"")])}
-  rows.splice(1,0,["Προτεινόμενη διατομή",pick?nf(pick,1)+" mm²":"μεγαλύτερη από 35 mm²",1]);return{r:rows}}},
+ help:"Πτώση τάσης για χαλκό σε θερμοκρασία λειτουργίας. Συνηθισμένα όρια: 3% για φωτισμό, 5% για άλλες καταναλώσεις. Η φέρουσα ικανότητα είναι ενδεικτική για καλώδιο PVC σε σωλήνα (2 αγωγοί υπό φορτίο στο μονοφασικό, 3 στο τριφασικό).",
+ f:[SEL("ph","Παροχή",1,[["Μονοφασική",1],["Τριφασική",3]]),F("P","Ισχύς φορτίου","W",3000,{req:1}),F("len","Μήκος γραμμής (μονή διαδρομή)","m",25,{req:1}),F("cos","συνφ","",1,{req:1}),F("lim","Όριο πτώσης τάσης","%",3,{req:1,hint:"3% φωτισμός, 5% άλλες καταναλώσεις"})],
+ p:[F("rho","Ειδική αντίσταση χαλκού","Ω·mm²/m",.0225,{req:1,hint:"0,0225 σε θερμοκρασία λειτουργίας"}),F("V1","Τάση μονοφασική","V",230,{req:1}),F("V3","Τάση τριφασική","V",400,{req:1})],
+ c(v){const V=v.ph==3?v.V3:v.V1,I=v.ph==3?v.P/(Math.sqrt(3)*V*v.cos):v.P/(V*v.cos),amp=v.ph==3?{1.5:15.5,2.5:21,4:28,6:36,10:50,16:68,25:89,35:110}:{1.5:17.5,2.5:24,4:32,6:41,10:57,16:76,25:101,35:125};let pick=null;const rows=[];
+  for(const s of [1.5,2.5,4,6,10,16,25,35]){const dv=v.ph==3?Math.sqrt(3)*v.len*I*v.rho*v.cos/s:2*v.len*I*v.rho*v.cos/s,pc=dv/V*100,ok=pc<=v.lim&&amp[s]>=I;if(ok&&!pick)pick=s;rows.push([nf(s,1)+" mm²",nf(pc,2)+"% · έως "+nf(amp[s],1)+" A"+(ok?" ✓":"")])}
+  return{r:[["Ρεύμα",nf(I,2)+" A",1],["Προτεινόμενη διατομή",pick?nf(pick,1)+" mm²":"μεγαλύτερη από 35 mm²",1],...rows],w:["Ενδεικτικοί υπολογισμοί. Δεν αντικαθιστούν μελέτη ή έλεγχο από αδειούχο ηλεκτρολόγο."]}}},
 dexameni:{t:"Δεξαμενή & νερό",ic:"💧",d:"λίτρα δεξαμενής, χρόνος γεμίσματος",
- help:"Κυλινδρική: διάμετρος και ύψος. Ορθογώνια: μήκος, πλάτος, ύψος. Η παροχή μετριέται εύκολα: γέμισε έναν κουβά 10 λίτρων και χρονομέτρησε.",
- f:[["shape","Σχήμα","",0,[["Κυλινδρική όρθια",0],["Ορθογώνια",1]]],["a","Διάμετρος / μήκος","m",1.2],["b","Ύψος (κύλινδρος) / πλάτος","m",1.5],["c","Ύψος (ορθογώνια)","m",1],["fill","Γεμάτη σε","%",100],["flow","Παροχή βρύσης/αντλίας","λίτρα/λεπτό",15]],
- c(v){const V=(+v.shape===0?Math.PI*v.a*v.a/4*v.b:v.a*v.b*v.c)*1000,f=V*v.fill/100,m=v.flow>0?f/v.flow:0;return{r:[["Χωρητικότητα",nf(V,0)+" λίτρα",1],["Τώρα περιέχει",nf(f,0)+" λίτρα"],["Χρόνος γεμίσματος",v.flow>0?(m>=60?Math.floor(m/60)+" ώ. "+Math.round(m%60)+" λ.":nf(m,1)+" λεπτά"):"—",1]]}}}
+ help:"Η παροχή μετριέται εύκολα: γέμισε έναν κουβά 10 λίτρων και χρονομέτρησε.",
+ f:[SEL("shape","Σχήμα",0,[["Κυλινδρική όρθια",0],["Κυλινδρική ξαπλωτή",2],["Ορθογώνια",1]]),F("a",v=>v.shape==1?"Μήκος":"Διάμετρος","m",1.2,{req:1}),F("b",v=>v.shape==1?"Πλάτος":v.shape==2?"Μήκος δεξαμενής":"Ύψος","m",1.5,{req:1}),F("c","Ύψος","m",1,{req:1,show:v=>v.shape==1}),F("fill","Γεμάτη σε (στάθμη)","%",100),F("flow","Παροχή βρύσης / αντλίας","λίτρα/λεπτό",15)],
+ c(v){const s=+v.shape;let V,f;if(s===0){V=Math.PI*v.a*v.a/4*v.b;f=V*v.fill/100}else if(s===1){V=v.a*v.b*v.c;f=V*v.fill/100}else{const r=v.a/2,h=Math.min(1,Math.max(0,v.fill/100))*v.a;V=Math.PI*r*r*v.b;f=(r*r*Math.acos((r-h)/r)-(r-h)*Math.sqrt(Math.max(0,2*r*h-h*h)))*v.b}
+  V*=1000;f*=1000;const m=v.flow>0?(V-f)/v.flow:0;return{r:[["Χωρητικότητα",nf(V,0)+" λίτρα",1],["Τώρα περιέχει",nf(f,0)+" λίτρα"],["Λείπουν",nf(V-f,0)+" λίτρα"],["Χρόνος να γεμίσει",v.flow>0?(m>=60?Math.floor(m/60)+" ώ. "+Math.round(m%60)+" λ.":nf(m,1)+" λεπτά"):"—",1]]}}}
 };
-const CALC_DEF=id=>{const c=CALCS[id],v={};c.f.forEach(x=>v[x[0]]=x[3]);return v};
-function calcView(id){const c=CALCS[id],v=Object.assign(CALC_DEF(id),S.calc[id]||{});
- const inp=x=>x[4]?`<label class="fld${x[1].length>22?" full":""}">${esc(x[1])}<span class="in"><select data-k="${x[0]}">${x[4].map(o=>`<option value="${o[1]}"${+v[x[0]]===o[1]?" selected":""}>${esc(o[0])}</option>`).join("")}</select></span></label>`
-  :`<label class="fld${x[1].length>24?" full":""}">${esc(x[1])}<span class="in"><input type="number" inputmode="decimal" step="any" data-k="${x[0]}" value="${v[x[0]]}"><span class="u">${esc(x[2])}</span></span></label>`;
- body(`<div class="card"><div class="fields">${c.f.map(inp).join("")}</div><div class="res" id="res"></div>
- <div class="row" style="margin-top:12px"><button class="btn ghost small" id="cReset">↺ Αρχικές τιμές</button><button class="btn ghost small" id="cSave">📒 Αποθήκευση</button><button class="btn amber small" id="cList" hidden>🛒 Στη λίστα</button></div></div>
- ${["kalodio","ohm"].includes(id)?`<div class="warn">⚠️ Ενδεικτικοί υπολογισμοί. Ηλεκτρολογική εγκατάσταση κάνει και υπογράφει μόνο αδειούχος ηλεκτρολόγος, σύμφωνα με τους ισχύοντες κανονισμούς.</div>`:""}
- ${id==="beton"?`<div class="warn">⚠️ Για κολόνες, δοκάρια, πλάκες και θεμέλια ισχύει η στατική μελέτη του μηχανικού.</div>`:""}`);
- let last=null;const run=()=>{const vals={};$$("[data-k]").forEach(e=>{const n=parseFloat(String(e.value).replace(",","."));vals[e.dataset.k]=isFinite(n)?n:0});S.calc[id]=vals;write();
-  try{last=c.c(vals)}catch{last={r:[["Σφάλμα","έλεγξε τις τιμές"]]}}
-  $("#res").innerHTML=last.r.filter(Boolean).map(r=>`<div class="kv${r[2]?" hl":""}"><span>${esc(r[0])}</span><b>${esc(r[1])}</b></div>`).join("");$("#cList").hidden=!last.l};
- $$("[data-k]").forEach(e=>e.addEventListener("input",run));run();
- $("#cReset").onclick=()=>{delete S.calc[id];write();calcView(id)};
- $("#cSave").onclick=()=>{const vals=c.f.map(x=>{const val=S.calc[id][x[0]];return x[4]?x[1]+": "+(x[4].find(o=>o[1]===+val)||[val])[0]:x[1]+": "+val+" "+x[2]}).join("\n");saveMeasure(id,c.t,vals+"\n—\n"+last.r.filter(Boolean).map(r=>r[0]+": "+r[1]).join("\n"))};
- $("#cList").onclick=()=>addToList(last.l.filter(i=>i.qty>0),c.t)}
+const CALC_DISC="ℹ️ Οι υπολογισμοί βασίζονται σε έρευνα σε στοιχεία κατασκευαστών και στην πρακτική του επαγγέλματος. Είναι κατά προσέγγιση και στρογγυλεμένοι προς τα πάνω, για να μη σου λείψει υλικό. Οι πραγματικές ποσότητες εξαρτώνται από το υλικό, την επιφάνεια και τον τρόπο δουλειάς — έλεγξε τις οδηγίες του κατασκευαστή και προσάρμοσε τις «Ρυθμίσεις μου».";
+const lbl=(x,v)=>typeof x.l==="function"?x.l(v):x.l;
+function calcVals(id){const c=CALCS[id],v={};[...c.f,...(c.p||[])].forEach(x=>v[x.k]=x.d);Object.assign(v,(S.calcP||{})[id]||{});const j=S.calc[id]||{};c.f.forEach(x=>{if(typeof j[x.k]==="number")v[x.k]=j[x.k]});return v}
+function fldHTML(x,v,pre){if(x.show&&!x.show(v))return"";const L=lbl(x,v),full=x.full||L.length>24||(pre==="p"&&x.hint);
+ return x.sel?`<label class="fld${full?" full":""}">${esc(L)}<span class="in"><select data-${pre}="${x.k}">${x.sel.map(o=>`<option value="${o[1]}"${+v[x.k]===o[1]?" selected":""}>${esc(o[0])}</option>`).join("")}</select></span></label>`
+ :`<label class="fld${full?" full":""}">${esc(L)}<span class="in"><input type="number" inputmode="decimal" step="any" data-${pre}="${x.k}" value="${v[x.k]}"><span class="u">${esc(x.u||"")}</span></span>${x.hint?`<small class="hint">${esc(x.hint)}</small>`:""}</label>`}
+function readNum(e){const n=parseFloat(String(e.value).replace(",","."));return isFinite(n)?n:0}
+function calcView(id){const c=CALCS[id],hasP=!!(c.p&&c.p.length);let v=calcVals(id),last=null;
+ const custom=()=>hasP&&Object.keys((S.calcP||{})[id]||{}).length>0;
+ body(`${hasP?`<button class="mybtn" id="cMy"><span class="mi">⚙️</span><span class="mt"><b>Οι ρυθμίσεις μου</b><small id="cMyS"></small></span><span>›</span></button>`:""}
+ <div class="card"><div class="fields" id="cF"></div><div class="res" id="res"></div><div id="cW"></div>
+ <div class="row" style="margin-top:12px"><button class="btn ghost small" id="cReset">↺ Καθαρισμός</button><button class="btn ghost small" id="cSave">📒 Αποθήκευση</button><button class="btn amber small" id="cList" hidden>🛒 Στη λίστα</button></div></div>
+ <p class="disc">${esc(CALC_DISC)}</p>`);
+ const paintMy=()=>{if(!hasP)return;const P=c.p.map(x=>`${lbl(x,v)} ${nf(v[x.k],3)}${x.u?" "+x.u:""}`);$("#cMyS").textContent=(custom()?"✎ Δικές σου τιμές · ":"Δήλωσέ τα μία φορά · ")+P.slice(0,3).join(" · ")+(P.length>3?" …":"")};
+ const read=()=>{$$("#cF [data-k]").forEach(e=>v[e.dataset.k]=readNum(e));const j={};c.f.forEach(x=>j[x.k]=v[x.k]);S.calc[id]=j;write()};
+ const run=()=>{read();const miss=c.f.filter(x=>x.req&&(!x.show||x.show(v))&&!(v[x.k]>0)).map(x=>lbl(x,v));$("#cW").innerHTML="";
+  if(miss.length){last=null;$("#res").innerHTML=`<p class="note">✏️ Συμπλήρωσε: ${esc(miss.join(", "))}.</p>`;$("#cList").hidden=true;return}
+  try{last=c.c(v)}catch{last={r:[["Σφάλμα","έλεγξε τις τιμές"]]}}
+  $("#res").innerHTML=last.r.filter(Boolean).map(r=>`<div class="kv${r[2]?" hl":""}"><span>${esc(r[0])}</span><b>${esc(String(r[1]))}</b></div>`).join("");
+  $("#cW").innerHTML=(last.w||[]).map(t=>`<div class="warn">⚠️ ${esc(t)}</div>`).join("");$("#cList").hidden=!(last.l&&last.l.length)};
+ const paintF=()=>{$("#cF").innerHTML=c.f.map(x=>fldHTML(x,v,"k")).join("");$$("#cF input[data-k]").forEach(e=>e.addEventListener("input",run));$$("#cF select[data-k]").forEach(e=>e.addEventListener("change",()=>{read();paintF();run()}))};
+ paintF();run();paintMy();
+ if(hasP)$("#cMy").onclick=()=>mySettings(id,()=>{v=calcVals(id);paintF();run();paintMy()});
+ $("#cReset").onclick=()=>{delete S.calc[id];write();v=calcVals(id);paintF();run()};
+ $("#cSave").onclick=()=>{if(!last)return toast("Συμπλήρωσε πρώτα τα στοιχεία.");const vis=c.f.filter(x=>!x.show||x.show(v)).map(x=>x.sel?lbl(x,v)+": "+(x.sel.find(o=>o[1]===+v[x.k])||[v[x.k]])[0]:lbl(x,v)+": "+nf(v[x.k],3)+" "+(x.u||"")).join("\n");
+  const my=hasP&&custom()?"\nΡυθμίσεις: "+c.p.map(x=>lbl(x,v)+" "+nf(v[x.k],3)+(x.u?" "+x.u:"")).join(", "):"";saveMeasure(id,c.t,vis+my+"\n—\n"+last.r.filter(Boolean).map(r=>r[0]+": "+r[1]).join("\n"))};
+ $("#cList").onclick=()=>last&&last.l&&addToList(last.l.filter(i=>i.qty>0),c.t)}
+function mySettings(id,done){const c=CALCS[id],cur={};c.p.forEach(x=>cur[x.k]=x.d);Object.assign(cur,(S.calcP||{})[id]||{});
+ openSheet("⚙️ Οι ρυθμίσεις μου — "+c.t,`<p class="note">Δήλωσε μία φορά τα υλικά και τον τρόπο που δουλεύεις. Αποθηκεύονται στο κινητό (και στα αντίγραφα ασφαλείας) και χρησιμοποιούνται σε κάθε υπολογισμό «${esc(c.t)}».</p><div class="fields">${c.p.map(x=>fldHTML(x,cur,"p")).join("")}</div>
+ <div class="row" style="margin-top:14px"><button class="btn ghost" id="pDef">↺ Προεπιλογές</button><button class="btn amber" id="pSave">✓ Αποθήκευση</button></div>`,b=>{
+  b.querySelector("#pSave").onclick=()=>{const o={};let bad=[];b.querySelectorAll("[data-p]").forEach(e=>{const x=c.p.find(y=>y.k===e.dataset.p),n=readNum(e);if(x.req&&!(n>0)){bad.push(lbl(x,cur));return}if(n!==x.d)o[x.k]=n});
+   if(bad.length)return toast("Πρέπει να είναι πάνω από 0: "+bad.join(", "));S.calcP=S.calcP||{};Object.keys(o).length?S.calcP[id]=o:delete S.calcP[id];changed();closeSheet();toast("✓ Οι ρυθμίσεις σου αποθηκεύτηκαν.");done&&done()};
+  b.querySelector("#pDef").onclick=()=>{if(!confirm("Να γυρίσουν οι ρυθμίσεις «"+c.t+"» στις προεπιλογές;"))return;S.calcP&&delete S.calcP[id];changed();closeSheet();toast("Έγινε επαναφορά.");done&&done()}})}
 /* =========================================================
    ΛΙΣΤΑ ΕΡΓΑΛΕΙΩΝ
    ========================================================= */
@@ -303,23 +359,37 @@ const TOOLS=[
  {cat:"Πίνακες & μετατροπές",items:[["monades","🔁","Μετατροπή μονάδων","μήκος, πίεση, ισχύς, ροπή…","n"],["intses","📎","Ίντσες ↔ χιλιοστά","κλάσματα, σωλήνες","n"],["vides","🔩","Βίδες & τρυπάνια","ούπα, σπειρώματα, κλειδιά","n"],["xronometro","⏱️","Χρονόμετρο","πήξη, στέγνωμα, αντίστροφη μέτρηση","n"]]}
 ];
 const ALL={};TOOLS.forEach(g=>g.items.forEach(i=>ALL[i[0]]={id:i[0],ic:i[1],t:i[2],d:i[3],cls:i[4],cat:g.cat}));
-const OUR_APPS=[["fotometra","📐","ΦωτοΜέτρα","διαστάσεις πάνω σε φωτογραφίες","https://aglentzakis-dot.github.io/fotometra/"],["identify","🔎","Identify-AI","τι εξάρτημα είναι από φωτογραφία","https://aglentzakis-dot.github.io/Identify-AI/"],["dromologio","🗺️","Δρομολόγιο","πελάτες, δουλειές, προσφορές","https://aglentzakis-dot.github.io/dromologio/"]];
+const OUR_APPS=[["dromologio","🗺️","Δρομολόγιο","πελάτες, δουλειές, προσφορές","https://aglentzakis-dot.github.io/dromologio/"],["fotometra","📐","ΦωτοΜέτρα","διαστάσεις πάνω σε φωτογραφίες","https://aglentzakis-dot.github.io/fotometra/"],["identify","🔎","Identify-AI","τι εξάρτημα είναι από φωτογραφία","https://aglentzakis-dot.github.io/Identify-AI/"]];
 /* =========================================================
    ΠΡΟΒΟΛΕΣ
    ========================================================= */
 let view="home",cur=null,q="";
 function body(h){$("#toolBody").innerHTML=h}
 function setNav(n){$$("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.nav===n))}
-function home(){stopAll();view="home";cur=null;setNav("home");history.replaceState(null,"",location.pathname);
- const m=$("#main"),qq=q.trim().toLowerCase();
+let reorder=false;
+function sortBy(arr,key,ord){return arr.map((x,i)=>({x,i})).sort((a,b)=>{const p=ord.indexOf(key(a.x)),r=ord.indexOf(key(b.x));return(p<0?1e3+a.i:p)-(r<0?1e3+b.i:r)}).map(z=>z.x)}
+function orderedTools(){const o=S.settings.order||{};return sortBy(TOOLS,g=>g.cat,o.cats||[]).map(g=>({cat:g.cat,items:sortBy(g.items,i=>i[0],(o.items||{})[g.cat]||[])}))}
+function moveOrder(kind,cat,id,dir){const cur=orderedTools(),o=S.settings.order=S.settings.order||{cats:[],items:{}};o.items=o.items||{};
+ const sw=(a,i)=>{const j=i+dir;if(j<0||j>=a.length)return false;[a[i],a[j]]=[a[j],a[i]];return true};
+ if(kind==="cat"){const a=cur.map(g=>g.cat);if(!sw(a,a.indexOf(cat)))return;o.cats=a}else{const a=cur.find(g=>g.cat===cat).items.map(i=>i[0]);if(!sw(a,a.indexOf(id)))return;o.items[cat]=a}
+ write();buzz(15);home(true)}
+function home(keep){stopAll();view="home";cur=null;setNav("home");history.replaceState(null,"",location.pathname);
+ const m=$("#main"),qq=q.trim().toLowerCase(),y=window.scrollY;if(qq)reorder=false;
  const norm=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
- let h=`<label class="search"><span>🔍</span><input id="q" type="search" placeholder="Βρες εργαλείο (π.χ. αλφάδι, πλακάκια)" value="${esc(q)}"></label>`;
- if(!qq)try{window.EfarmogesMas&&(h+=EfarmogesMas.slot())}catch{}
- for(const g of TOOLS){const its=g.items.filter(i=>!qq||norm(i[2]+" "+i[3]).includes(norm(qq)));if(!its.length)continue;
-  h+=`<h2 class="cat">${esc(g.cat)}</h2><div class="grid">${its.map(i=>`<button class="tile" data-tool="${i[0]}"><span class="ic ${i[4]}">${i[1]}</span><span><b>${esc(i[2])}</b><small>${esc(i[3])}</small></span></button>`).join("")}</div>`}
- if(!qq)h+=`<h2 class="cat">Δένει με τις εφαρμογές GlenApps</h2><div class="grid">${OUR_APPS.map(a=>`<a class="tile" href="${a[4]}" target="_blank" rel="noopener" style="text-decoration:none"><span class="ic s">${a[1]}</span><span><b>${a[2]} ↗</b><small>${a[3]}</small></span></a>`).join("")}</div>`;
- h+=`<p class="footer">Εργαλειοθήκη ${APP_VERSION} · © 2026 ${COPY_OWNER} · GlenApps<br>Οι μετρήσεις με αισθητήρες κινητού είναι ενδεικτικές.</p>`;
- m.innerHTML=h;const qi=$("#q");qi.addEventListener("input",()=>{q=qi.value;const p=qi.selectionStart;home();const n=$("#q");n.focus();try{n.setSelectionRange(p,p)}catch{}});window.scrollTo(0,0)}
+ let h=`<div class="hrow"><label class="search"><span>🔍</span><input id="q" type="search" placeholder="Βρες εργαλείο (π.χ. αλφάδι, πλακάκια)" value="${esc(q)}"${reorder?" disabled":""}></label>${qq?"":`<button class="btn ${reorder?"amber":"ghost"} small" id="roBtn">${reorder?"✓ Τέλος":"↕ Σειρά"}</button>`}</div>`;
+ if(reorder)h+=`<div class="robar">↕ Πάτα τα βελάκια για να ανεβάσεις ή να κατεβάσεις εργαλεία και κατηγορίες. <button class="btn ghost small" id="roReset">↺ Αρχική σειρά</button></div>`;
+ if(!qq&&!reorder)try{window.EfarmogesMas&&(h+=EfarmogesMas.slot())}catch{}
+ const groups=orderedTools();
+ groups.forEach((g,gi)=>{const its=g.items.filter(i=>!qq||norm(i[2]+" "+i[3]).includes(norm(qq)));if(!its.length)return;
+  h+=`<h2 class="cat${reorder?" ro":""}"><span>${esc(g.cat)}</span>${reorder?`<span class="mv"><button data-mv="cat" data-c="${esc(g.cat)}" data-d="-1" ${gi?"":"disabled"} aria-label="Πάνω">▲</button><button data-mv="cat" data-c="${esc(g.cat)}" data-d="1" ${gi<groups.length-1?"":"disabled"} aria-label="Κάτω">▼</button></span>`:""}</h2><div class="grid${reorder?" one":""}">${its.map((i,ii)=>reorder
+   ?`<div class="tile ro"><span class="ic ${i[4]}">${i[1]}</span><span class="tt"><b>${esc(i[2])}</b></span><span class="mv"><button data-mv="it" data-c="${esc(g.cat)}" data-i="${i[0]}" data-d="-1" ${ii?"":"disabled"} aria-label="Πιο πάνω">▲</button><button data-mv="it" data-c="${esc(g.cat)}" data-i="${i[0]}" data-d="1" ${ii<its.length-1?"":"disabled"} aria-label="Πιο κάτω">▼</button></span></div>`
+   :`<button class="tile" data-tool="${i[0]}"><span class="ic ${i[4]}">${i[1]}</span><span><b>${esc(i[2])}</b><small>${esc(i[3])}</small></span></button>`).join("")}</div>`});
+ if(!qq&&!reorder)h+=`<h2 class="cat">Δένει με τις εφαρμογές GlenApps</h2><div class="grid">${OUR_APPS.map(a=>`<a class="tile${a[0]==="dromologio"?" gold":""}" href="${a[4]}" target="_blank" rel="noopener" style="text-decoration:none"><span class="ic s">${a[1]}</span><span><b>${a[2]} ↗</b><small>${a[3]}</small></span></a>`).join("")}</div>`;
+ h+=`<p class="footer">Εργαλειοθήκη ${APP_VERSION} · © 2026 ${COPY_OWNER} · GlenApps<br>Οι μετρήσεις με αισθητήρες κινητού και οι υπολογισμοί είναι κατά προσέγγιση.</p>`;
+ m.innerHTML=h;const qi=$("#q");qi.addEventListener("input",()=>{q=qi.value;const p=qi.selectionStart;home();const n=$("#q");n.focus();try{n.setSelectionRange(p,p)}catch{}});
+ const rb=$("#roBtn");rb&&(rb.onclick=()=>{reorder=!reorder;home(true)});const rr=$("#roReset");rr&&(rr.onclick=()=>{if(!confirm("Να γυρίσει η σειρά όπως ήταν αρχικά;"))return;delete S.settings.order;write();home(true)});
+ $$("[data-mv]").forEach(b=>b.onclick=()=>moveOrder(b.dataset.mv,b.dataset.c,b.dataset.i,+b.dataset.d));
+ window.scrollTo(0,keep?y:0)}
 function openTool(id,push=true){stopAll();const t=ALL[id]||(id==="lista"?{t:"Λίστα υλικών",ic:"🛒"}:id==="saved"?{t:"Μετρήσεις",ic:"📒"}:null);if(!t)return home();
  view="tool";cur=id;setNav(id==="lista"?"lista":id==="saved"?"saved":"home");if(push)history.pushState({t:id},"","?t="+id);
  const helpTxt=(CALCS[id]&&CALCS[id].help)||HELP[id]||"";
@@ -597,9 +667,9 @@ TOOLFN.saved=function(){const draw=()=>{const L=S.saved;body(L.length?`<div clas
 /* =========================================================
    ΑΝΤΙΓΡΑΦΑ ΑΣΦΑΛΕΙΑΣ (κοινή λογική GlenApps)
    ========================================================= */
-const backupPayload=()=>JSON.stringify({app:APP_ID,version:APP_VERSION,at:new Date().toISOString(),data:{settings:Object.assign({},S.settings,{gdrive:undefined}),calc:S.calc,saved:S.saved,list:S.list}});
+const backupPayload=()=>JSON.stringify({app:APP_ID,version:APP_VERSION,at:new Date().toISOString(),data:{settings:Object.assign({},S.settings,{gdrive:undefined}),calc:S.calc,calcP:S.calcP,saved:S.saved,list:S.list}});
 function restoreFrom(txt){let o;try{o=JSON.parse(txt)}catch{return toast("Το αρχείο δεν διαβάστηκε.")}if(!o||o.app!==APP_ID||!o.data)return toast("Αυτό δεν είναι αντίγραφο της Εργαλειοθήκης.");
- if(!confirm("Να αντικατασταθούν τα τωρινά στοιχεία με το αντίγραφο της "+new Date(o.at).toLocaleString("el-GR")+";"))return;const gd=S.settings.gdrive;S.settings=Object.assign(S.settings,o.data.settings||{});S.settings.gdrive=gd;S.calc=o.data.calc||{};S.saved=o.data.saved||[];S.list=o.data.list||[];write();updCount();closeSheet();toast("✓ Έγινε επαναφορά.");home()}
+ if(!confirm("Να αντικατασταθούν τα τωρινά στοιχεία με το αντίγραφο της "+new Date(o.at).toLocaleString("el-GR")+";"))return;const gd=S.settings.gdrive;S.settings=Object.assign(S.settings,o.data.settings||{});S.settings.gdrive=gd;S.calc=o.data.calc||{};S.calcP=o.data.calcP||{};S.saved=o.data.saved||[];S.list=o.data.list||[];write();updCount();closeSheet();toast("✓ Έγινε επαναφορά.");home()}
 function fsIdb(){return new Promise((r,j)=>{const q=indexedDB.open(FS_DB,1);q.onupgradeneeded=()=>{const d=q.result;d.objectStoreNames.contains(FS_STORE)||d.createObjectStore(FS_STORE)};q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
 async function fsIdbDo(m,f){try{const d=await fsIdb();return await new Promise((r,j)=>{const t=d.transaction(FS_STORE,m),q=f(t.objectStore(FS_STORE));q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}catch{return null}}
 const fsOK=()=>typeof window.showDirectoryPicker==="function"&&window.isSecureContext;
