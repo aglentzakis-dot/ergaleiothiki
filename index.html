@@ -9,7 +9,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.2.1">
+<meta name="app-version" content="1.2.2">
 <meta name="theme-color" content="#17324D">
 <meta name="description" content="Εργαλειοθήκη για μάστορες: αλφάδι, χάρακας, μετροταινία, πυξίδα, ηχόμετρο, φακός και υπολογισμοί υλικών.">
 <title>Εργαλειοθήκη</title>
@@ -160,7 +160,7 @@ h2.cat.ro{display:flex;align-items:center;gap:8px}h2.cat.ro span:first-child{fle
   © 2026 Ανδρέας Μ. Γλεντζάκης (Andreas M. Glentzakis). Με την επιφύλαξη παντός δικαιώματος. All rights reserved.
 */
 "use strict";
-const APP_VERSION="1.2.1",APP_BUILD="2026-10-11",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
+const APP_VERSION="1.2.2",APP_BUILD="2026-10-17",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
 APP_URL="https://aglentzakis-dot.github.io/ergaleiothiki/",FS_DB="shared-backups",FS_STORE="handles",FS_KEY="ergaleiothiki-root",FS_SUB="Εργαλειοθήκη",BK_PREFIX="ergaleiothiki-antigrafo";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const T=(s,v)=>{if(v)for(const k in v)s=s.split("{"+k+"}").join(v[k]);return s};
@@ -752,7 +752,7 @@ let instEv=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefau
 document.addEventListener("click",e=>{const t=e.target.closest("[data-tool]");if(t){e.preventDefault();openTool(t.dataset.tool);return}
  const n=e.target.closest("[data-nav]");if(n){const v=n.dataset.nav;v==="home"?(history.pushState(null,"",location.pathname),home()):v==="settings"?settings():openTool(v);return}
  const a=e.target.closest("[data-act]");if(!a)return;const act=a.dataset.act;if(act==="home"){history.length>1&&history.state?history.back():home()}else if(act==="settings")settings();else if(act==="lang")setLang(LANG==="el"?"en":"el");else if(act==="help"){const h=(CALCS[cur]&&CALCS[cur].help)||HELP[cur];h&&openSheet("Πώς δουλεύει",`<p>${esc(h)}</p>`)}});
-$("#langBtn").textContent=LANG==="el"?"🇬🇧":"🇬🇷";$("#langBtn").title=LANG==="el"?"English":"Ελληνικά";i18nStart();updCount();gdInit();
+$("#langBtn").textContent=LANG==="el"?"🇬🇷":"🇬🇧";$("#langBtn").title=LANG==="el"?"Ελληνικά — πάτα για English":"English — tap for Ελληνικά";$("#langBtn").setAttribute("aria-label",$("#langBtn").title);i18nStart();updCount();gdInit();
 try{window.EfarmogesMas&&EfarmogesMas.init({app:APP_ID,isPro:()=>false,lang:()=>LANG,t:(s,v)=>tr(T(s,v)),canShow:()=>(S.meta.opens||0)>2,onChange:()=>{view==="home"&&home()}})}catch{}
 S.meta.opens=(S.meta.opens||0)+1;write();
 {const t=new URLSearchParams(location.search).get("t");t?openTool(t,false):home()}
