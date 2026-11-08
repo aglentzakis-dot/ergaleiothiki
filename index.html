@@ -9,10 +9,10 @@
 <head>
 <meta charset="utf-8">
 <script src="plaisio.js"></script>
-<script src="metafora-rythmisi.js?v=1.3.6"></script>
-<script src="metafora-lipsi.js?v=1.3.6"></script>
+<script src="metafora-rythmisi.js?v=1.3.7"></script>
+<script src="metafora-lipsi.js?v=1.3.7"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="app-version" content="1.3.6">
+<meta name="app-version" content="1.3.7">
 <meta name="theme-color" content="#17324D">
 <meta name="description" content="Εργαλειοθήκη για μάστορες: αλφάδι, χάρακας, μετροταινία, πυξίδα, ηχόμετρο, φακός και υπολογισμοί υλικών.">
 <title>Εργαλειοθήκη</title>
@@ -172,7 +172,7 @@ h2.cat.ro{display:flex;align-items:center;gap:8px}h2.cat.ro span:first-child{fle
   © 2026 Ανδρέας Μ. Γλεντζάκης (Andreas M. Glentzakis). Με την επιφύλαξη παντός δικαιώματος. All rights reserved.
 */
 "use strict";
-const APP_VERSION="1.3.6",APP_BUILD="2026-10-22",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
+const APP_VERSION="1.3.7",APP_BUILD="2026-10-22",APP_ID="ergaleiothiki",KEY="ergaleiothiki-v1",COPY_OWNER="Ανδρέας Μ. Γλεντζάκης",
 APP_URL="https://aglentzakis-dot.github.io/ergaleiothiki/",FS_DB="shared-backups",FS_STORE="handles",FS_KEY="ergaleiothiki-root",FS_SUB="Εργαλειοθήκη",BK_PREFIX="ergaleiothiki-antigrafo";
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const T=(s,v)=>{if(v)for(const k in v)s=s.split("{"+k+"}").join(v[k]);return s};
@@ -741,7 +741,7 @@ async function settings(){stopAll();view="settings";cur="settings";setNav("setti
  const fr=$("#fsRe");fr&&(fr.onclick=async()=>{const l=await fsListBk();pickRestore(l.map(f=>({name:f.name,at:f.at,get:async()=>(await f.h.getFile()).text()})))});
  $("#dl").onclick=downloadBackup;$("#ul").onchange=async e=>{const f=e.target.files[0];f&&restoreFrom(await f.text())};
  $("#upd").onclick=()=>checkUpdate(false);$("#terms").onclick=terms;
- try{window.EfarmogesMas?EfarmogesMas.page($("#efmPage"),{skip:[APP_ID]}):$("#efmPage").innerHTML=`<p class="note">Η λίστα δεν φορτώθηκε.</p>`}catch{}}
+ try{window.EfarmogesMas?EfarmogesMas.page($("#efmPage")):$("#efmPage").innerHTML=`<p class="note">Η λίστα δεν φορτώθηκε.</p>`}catch{}}
 const TERMS_VER="2026-10-22";
 const legalUrl=f=>f+"?lang="+LANG;
 function terms(){const a=S.settings.accepted;openSheet("Όροι χρήσης & απόρρητο",`<div class="warn"><b>⚠️ Όλα είναι καθαρά ενδεικτικά.</b> Οι μετρήσεις, οι υπολογισμοί, οι ποσότητες και οι οδηγίες της εφαρμογής είναι κατά προσέγγιση και μπορεί να έχουν λάθη. Δεν είναι οδηγίες κατασκευής, μελέτη ή συμβουλή επαγγελματία. Πριν από κάθε εργασία ή αγορά υλικών τα ελέγχεις εσύ· την ευθύνη για τη δουλειά την έχεις εσύ.</div>
